@@ -1,0 +1,16 @@
+apply plugin: "org.owasp.dependencycheck"
+apply plugin: "net.ossindex.audit"
+
+audit {
+
+    failOnError = false
+    junitReport = "$rootDir/build/reports/ossindex/junitReport.xml"
+    rateLimitAsError = false
+}
+
+dependencyCheck {
+
+    autoUpdate = true
+    format = "ALL"
+    outputDirectory = "build/reports/dependencyCheck"
+}

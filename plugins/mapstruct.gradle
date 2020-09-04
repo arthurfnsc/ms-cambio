@@ -1,0 +1,8 @@
+apply plugin: "kotlin-kapt"
+apply plugin: "net.ltgt.apt"
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs = [
+        '-Amapstruct.suppressGeneratorTimestamp=true'
+    ]
+}

@@ -1,0 +1,20 @@
+apply plugin: "com.appmattus.markdown"
+apply plugin: "io.gitlab.arturbosch.detekt"
+
+detekt {
+    failFast = true
+    // https://arturbosch.github.io/detekt/changelog.html
+    config = files("$rootDir/plugins/configs/detekt/config.yml")
+    input = files("$projectDir/src/main/kotlin")
+
+    reports {
+        html {
+            enabled = true
+            destination = file("$buildDir/reports/detekt/detekt.html")
+        }
+    }
+}
+
+tasks.detekt.jvmTarget = "1.8"
+
+check.dependsOn("markdownlint")

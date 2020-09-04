@@ -1,0 +1,9 @@
+server:
+  servlet:
+      context-path: /mscambio
+  port: ${port:8080}
+
+management:
+  endpoints:
+    web:
+      base-path: /

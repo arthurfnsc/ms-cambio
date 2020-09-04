@@ -1,0 +1,25 @@
+apply plugin: "com.github.ben-manes.versions"
+apply plugin: "org.jetbrains.dokka"
+apply plugin: "project-report"
+
+dependencyUpdates {
+
+    checkForGradleUpdate = true
+    outputFormatter = "json"
+    outputDir = "build/reports/docs/dependencyUpdates"
+    reportfileName = "report"
+    
+    resolutionStrategy = {
+        componentSelection { rules ->
+            rules.all { ComponentSelection selection ->
+                boolean rejected = ["alpha", "beta", "rc", "cr", "m"].any { qualifier ->
+                    selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
+                }
+                if (rejected) {
+                    selection.reject("Release candidate")
+                }
+            }
+        }
+    }
+}
+
