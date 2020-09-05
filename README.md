@@ -81,5 +81,5 @@ foo@bar:ms-cambio$ [./gradlew | gradlew.bat] audit
 - [OWASP](https://jeremylong.github.io/DependencyCheck/dependency-check-gradle/index.html)
 
 ```console
-foo@bar:~$ [./gradlew | gradlew.bat] dependencyCheckAggregate
+foo@bar:ms-cambio$ [./gradlew | gradlew.bat] dependencyCheckAggregate
 ```
