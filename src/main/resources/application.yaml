@@ -1,3 +1,10 @@
+config:
+  rpc:
+    host: ${RPC_HOST}
+    username: ${RPC_USERNAME}
+    password: ${RPC_PASSWORD}
+    port: ${RPC_PORT}
+
 server:
   servlet:
       context-path: /mscambio

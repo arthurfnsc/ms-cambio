@@ -20,11 +20,13 @@ plugins {
 
 ext {
 
+    artemisJmsVersion = "2.6.2"
     assertJVersion = "3.17.1"
     cordaVersion = "4.5"
     detektVersion = "1.12.0"
     gradleWrapperVersion = "6.6.1"
     jacksonDatabindNullableVersion = "0.2.1"
+    jsonVersion = "1.1.4"
     junitVersion = "5.6.2"
     mapstructKotlinVersion = "1.4.0.0"
     mapstructVersion = "1.3.1.Final"
@@ -103,17 +105,19 @@ dependencies {
     kapt "com.github.pozo:mapstruct-kotlin-processor:$mapstructKotlinVersion"
     kapt "org.mapstruct:mapstruct-processor:$mapstructVersion"
 
-    testImplementation libs.unitTest
-
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
-
     implementation libs.kotlin
     implementation libs.openApiServer
     implementation libs.springBoot
     implementation libs.springFox
 
+    implementation "javax.json:javax.json-api:$jsonVersion"
     implementation "org.mapstruct:mapstruct:$mapstructVersion"
+    implementation "org.apache.activemq:artemis-jms-server:$artemisJmsVersion"
     implementation "org.openapitools:jackson-databind-nullable:$jacksonDatabindNullableVersion"
+
+    testImplementation libs.unitTest
+
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 }
 
 wrapper {
@@ -129,10 +133,6 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
 
     nodeDefaults {
         projectCordapp { deploy = false }
-    }
-
-    signing {
-        enabled false
     }
 
     node {
@@ -159,11 +159,21 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
 task runBancoServer(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = "br.com.fiap.mba.mscambio.MsCambioApplicationKt"
-    args '--server.port=50001', '--config.rpc.host=localhost', '--config.rpc.port=10010', '--config.rpc.username=user1', '--config.rpc.password=test1'
+    args '--config.rpc.host=localhost',
+        '--config.rpc.port=10010',
+        '--config.rpc.username=user1',
+        '--config.rpc.password=test1',
+        '--server.port=50001',
+        '--spring.profiles.active=dev'
 }
 
 task runCorretoraServer(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = "br.com.fiap.mba.mscambio.MsCambioApplicationKt"
-    args '--server.port=50002', '--config.rpc.host=localhost', '--config.rpc.port=10011', '--config.rpc.username=user2', '--config.rpc.password=test2'
+    args '--config.rpc.host=localhost',
+        '--config.rpc.port=10011',
+        '--config.rpc.username=user2',
+        '--config.rpc.password=test2',
+        '--server.port=50002',
+        '--spring.profiles.active=dev'
 }
