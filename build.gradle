@@ -4,6 +4,9 @@ plugins {
     id "com.github.ben-manes.versions" version "0.29.0" apply false
     id "io.gitlab.arturbosch.detekt" version "1.12.0" apply false
     id "io.spring.dependency-management" version "1.0.10.RELEASE"
+    id "net.corda.plugins.cordapp" version "5.0.11"
+    id "net.corda.plugins.cordformation" version "5.0.11"
+    id "net.corda.plugins.quasar-utils" version "5.0.11"
     id "net.ltgt.apt" version "0.21" apply false
     id "net.ossindex.audit" version "0.4.11" apply false
     id "org.jetbrains.dokka" version "0.10.1" apply false
@@ -17,21 +20,33 @@ plugins {
 
 ext {
 
+    artemisJmsVersion = "2.6.2"
     assertJVersion = "3.17.1"
+    cordaVersion = "4.5"
     detektVersion = "1.12.0"
     gradleWrapperVersion = "6.6.1"
     jacksonDatabindNullableVersion = "0.2.1"
+    jsonVersion = "1.1.4"
     junitVersion = "5.6.2"
     mapstructKotlinVersion = "1.4.0.0"
     mapstructVersion = "1.3.1.Final"
     mockitoVersion = "3.5.10"
     springFoxVersion = "3.0.0"
 
+    cordaGroup = "net.corda"
     kotlinGroup = "org.jetbrains.kotlin"
     springBootGroup = "org.springframework.boot"
     springFoxGroup = "io.springfox"
 
+    corda_release_version = cordaVersion
+
     libs = [
+        corda : [
+            "$cordaGroup:corda-core:$cordaVersion",
+            "$cordaGroup:corda-jackson:$cordaVersion",
+            "$cordaGroup:corda-node-api:$cordaVersion",
+            "$cordaGroup:corda-rpc:$cordaVersion"
+        ],
         kotlin : [
             "$kotlinGroup:kotlin-reflect",
             "$kotlinGroup:kotlin-stdlib-jdk8"
@@ -63,6 +78,7 @@ repositories {
 
     mavenLocal()
     mavenCentral()
+    maven {url "https://ci-artifactory.corda.r3cev.com/artifactory/corda"}
     jcenter()
 }
 
@@ -80,22 +96,28 @@ dependencies {
 
     api "com.github.pozo:mapstruct-kotlin:$mapstructKotlinVersion"
 
+    cordaCompile libs.corda
+
+    cordaRuntime "$cordaGroup:corda:$cordaVersion"
+
     detektPlugins "io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion"
 
     kapt "com.github.pozo:mapstruct-kotlin-processor:$mapstructKotlinVersion"
     kapt "org.mapstruct:mapstruct-processor:$mapstructVersion"
-
-    testImplementation libs.unitTest
-
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 
     implementation libs.kotlin
     implementation libs.openApiServer
     implementation libs.springBoot
     implementation libs.springFox
 
+    implementation "javax.json:javax.json-api:$jsonVersion"
     implementation "org.mapstruct:mapstruct:$mapstructVersion"
+    implementation "org.apache.activemq:artemis-jms-server:$artemisJmsVersion"
     implementation "org.openapitools:jackson-databind-nullable:$jacksonDatabindNullableVersion"
+
+    testImplementation libs.unitTest
+
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 }
 
 wrapper {
@@ -103,3 +125,55 @@ wrapper {
     gradleVersion = "$gradleWrapperVersion"
 }
 
+task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
+
+    if (JavaVersion.current() != JavaVersion.VERSION_1_8) {
+        throw new GradleException("This build must be run with java 8")
+    }
+
+    nodeDefaults {
+        projectCordapp { deploy = false }
+    }
+
+    node {
+        name "O=Banco,L=Brasilia,C=BR"
+        p2pPort 10000
+        rpcSettings {
+            address("localhost:10010")
+            adminAddress("localhost:10020")
+        }
+        rpcUsers = [[ user: "user1", "password": "test1", "permissions": ["ALL"]]]
+    }
+
+    node {
+        name "O=Corretora,L=São Paulo,C=BR"
+        p2pPort 10001
+        rpcSettings {
+            address("localhost:10011")
+            adminAddress("localhost:10021")
+        }
+        rpcUsers = [[ user: "user2", "password": "test2", "permissions": ["ALL"]]]
+    }
+}
+
+task runBancoServer(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = "br.com.fiap.mba.mscambio.MsCambioApplicationKt"
+    args '--config.rpc.host=localhost',
+        '--config.rpc.port=10010',
+        '--config.rpc.username=user1',
+        '--config.rpc.password=test1',
+        '--server.port=50001',
+        '--spring.profiles.active=dev'
+}
+
+task runCorretoraServer(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = "br.com.fiap.mba.mscambio.MsCambioApplicationKt"
+    args '--config.rpc.host=localhost',
+        '--config.rpc.port=10011',
+        '--config.rpc.username=user2',
+        '--config.rpc.password=test2',
+        '--server.port=50002',
+        '--spring.profiles.active=dev'
+}

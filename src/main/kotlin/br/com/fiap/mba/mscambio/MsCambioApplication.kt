@@ -3,13 +3,10 @@ package br.com.fiap.mba.mscambio
 import org.springframework.boot.Banner
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.WebApplicationType
-import kotlin.system.exitProcess
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.runApplication
 import org.springframework.core.env.SimpleCommandLinePropertySource
-import springfox.documentation.swagger2.annotations.EnableSwagger2
+import kotlin.system.exitProcess
 
-@EnableSwagger2
 @SpringBootApplication
 open class MsCambioApplication
 
