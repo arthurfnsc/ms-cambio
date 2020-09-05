@@ -1,5 +1,8 @@
 package br.com.fiap.mba.mscambio
 
+import org.springframework.boot.Banner
+import org.springframework.boot.SpringApplication
+import org.springframework.boot.WebApplicationType
 import kotlin.system.exitProcess
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -10,8 +13,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
 @SpringBootApplication
 open class MsCambioApplication
 
-@Suppress("SpreadOperator")
-fun main(args: Array<String>) {
+fun validateProfile(args: Array<String>) {
 
     val source = SimpleCommandLinePropertySource(*args)
 
@@ -22,6 +24,15 @@ fun main(args: Array<String>) {
         System.err.println("No Profile set, exiting")
         exitProcess(0)
     }
+}
 
-    runApplication<MsCambioApplication>(*args)
+@Suppress("SpreadOperator")
+fun main(args: Array<String>) {
+
+    validateProfile(args)
+
+    val app = SpringApplication(MsCambioApplication::class.java)
+    app.setBannerMode(Banner.Mode.OFF)
+    app.webApplicationType = WebApplicationType.SERVLET;
+    app.run(*args)
 }
