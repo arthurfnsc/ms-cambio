@@ -21,9 +21,6 @@ open class MainController(rpc: NodeRPCConnection) {
     private val myLegalName = rpc.proxy.nodeInfo().legalIdentities.first().name
     private val proxy = rpc.proxy
 
-    @GetMapping(value = ["/status"], produces = ["text/plain"])
-    private fun status() = "200"
-
     @GetMapping(value = ["/servertime"], produces = ["text/plain"])
     private fun serverTime() = LocalDateTime.ofInstant(proxy.currentNodeTime(), ZoneId.of("UTC")).toString()
 
