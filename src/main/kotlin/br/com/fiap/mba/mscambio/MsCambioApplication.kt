@@ -5,8 +5,10 @@ import org.springframework.boot.SpringApplication
 import org.springframework.boot.WebApplicationType
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.core.env.SimpleCommandLinePropertySource
+import springfox.documentation.oas.annotations.EnableOpenApi
 import kotlin.system.exitProcess
 
+@EnableOpenApi
 @SpringBootApplication
 open class MsCambioApplication
 
