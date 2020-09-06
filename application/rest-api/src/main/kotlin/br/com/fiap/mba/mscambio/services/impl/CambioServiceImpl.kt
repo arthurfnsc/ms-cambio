@@ -116,9 +116,9 @@ open class CambioServiceImpl(
             ).returnValue.getOrThrow()
         } catch (ex: Throwable) {
 
-            //val mensagem = this.messageSource.getMessage(I18N_REQUISICAO_INVALIDA, null, Locale("pt", "BR"))
+            val mensagem = this.messageSource.getMessage(I18N_REQUISICAO_INVALIDA, null, Locale("pt", "BR"))
 
-            throw PropostaInvalidaException(ex.stackTraceToString())
+            throw PropostaInvalidaException(mensagem)
         }
     }
 
@@ -138,7 +138,6 @@ open class CambioServiceImpl(
         val statesProposta = this.proxy.vaultQueryBy<PropostaState>(criteria).states
 
         val filteredStates = statesProposta.filter {
-
             it.state.data.linearId == UniqueIdentifier(id = uuid)
         }
 
