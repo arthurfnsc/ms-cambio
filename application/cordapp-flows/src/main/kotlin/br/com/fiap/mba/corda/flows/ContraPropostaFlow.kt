@@ -21,6 +21,7 @@ import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import java.math.BigDecimal
+import java.time.LocalDateTime
 
 object ContraPropostaFlow {
 
@@ -44,7 +45,8 @@ object ContraPropostaFlow {
             val output = input.copy(
                 taxa = novaTaxa,
                 proponente = ourIdentity,
-                oblato = counterparty
+                oblato = counterparty,
+                atualizadoEm = LocalDateTime.now()
             )
 
             // Creating the command.

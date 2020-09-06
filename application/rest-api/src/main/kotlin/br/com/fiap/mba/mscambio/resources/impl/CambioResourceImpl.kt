@@ -1,8 +1,10 @@
 package br.com.fiap.mba.mscambio.resources.impl
 
 import br.com.fiap.mba.mscambio.converters.PropostaConverter
+import br.com.fiap.mba.mscambio.converters.TransicaoDisponivelConverter
 import br.com.fiap.mba.mscambio.services.CambioService
 import org.openapi.cambio.server.api.V1Api
+import org.openapi.cambio.server.model.AlterarTransicaoRequest
 import org.openapi.cambio.server.model.PropostaNegociacao
 import org.openapi.cambio.server.model.PropostaNegociacaoRequest
 import org.openapi.cambio.server.model.PropostaNegociacaoResponse
@@ -15,6 +17,7 @@ import java.util.*
 @RestController
 open class CambioResourceImpl(
     private val propostaConverter: PropostaConverter,
+    private val transicaoDisponivelConverter: TransicaoDisponivelConverter,
     private val service: CambioService
 ) : V1Api {
 
@@ -24,9 +27,17 @@ open class CambioResourceImpl(
     }
 
     override fun alterarStatusTransicao(
-        id: UUID?
-    ): ResponseEntity<PropostaNegociacao> {
-        return super.alterarStatusTransicao(id)
+        id: UUID?,
+        alterarTransicaoRequest: AlterarTransicaoRequest?
+    ): ResponseEntity<Void>? {
+
+        val enum = alterarTransicaoRequest!!.novaTransicao.transicao
+
+        val transicao = transicaoDisponivelConverter.from(enum)
+
+        this.service.alterarStatusTransicao(id, transicao, alterarTransicaoRequest.novaTaxa)
+
+        return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 
     override fun enviarPropostaNegociacao(
@@ -48,8 +59,6 @@ open class CambioResourceImpl(
     ): ResponseEntity<PropostaNegociacao> {
 
         val propostaState = this.service.recuperarPropostaNegociacao(id).state.data
-
-        System.out.println(propostaState)
 
         val response = this.propostaConverter.from(propostaState)
 

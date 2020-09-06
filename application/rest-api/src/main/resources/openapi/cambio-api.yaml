@@ -111,6 +111,13 @@ paths:
       summary: "Alterar status transição de negociação de câmbio"
       description: "Alterar transição de negociação de câmbio do usuário."
       operationId: "alterarStatusTransicao"
+      requestBody:
+        description: "Parâmetros de proposta."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AlterarTransicaoRequest"
       parameters:
         - in: path
           name: "id"
@@ -120,12 +127,8 @@ paths:
             type: string
             format: uuid
       responses:
-        "200":
-          description: "Ok"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PropostaNegociacao"
+        "203":
+          description: "No Content"
         "400":
           description: "Bad Request"
           content:
@@ -141,6 +144,16 @@ paths:
 
 components:
   schemas:
+
+    AlterarTransicaoRequest:
+      description:
+      type: object
+      properties:
+        nova_transicao:
+          $ref: "#/components/schemas/TransicaoDisponivel"
+        nova_taxa:
+          type: number
+          format: double
 
     Error:
       description: "Error"

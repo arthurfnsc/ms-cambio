@@ -19,6 +19,9 @@ import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import java.math.BigDecimal
+import java.time.LocalDateTime
+import java.util.*
+
 
 object PropostaFlow {
 
@@ -44,7 +47,8 @@ object PropostaFlow {
                 moeda = moeda,
                 quantidade = quantidade,
                 cotacaoReal = cotacaoReal,
-                taxa = taxa
+                taxa = taxa,
+                atualizadoEm = LocalDateTime.now()
             )
 
             // Creating the command.
@@ -54,6 +58,7 @@ object PropostaFlow {
 
             // Building the transaction.
             val notary = serviceHub.networkMapCache.notaryIdentities.first()
+
             val txBuilder = TransactionBuilder(notary)
             txBuilder.addOutputState(output, NegociacaoContract.ID)
             txBuilder.addCommand(command)
@@ -65,10 +70,10 @@ object PropostaFlow {
             val counterpartySession = initiateFlow(instituicaoFinanceira)
             val fullyStx = subFlow(CollectSignaturesFlow(partStx, listOf(counterpartySession)))
 
-            logger.info("Gathering the counterparty's signature.")
+            val sessions: List<FlowSession> = if (!serviceHub.myInfo.isLegalIdentity(instituicaoFinanceira)) Collections.singletonList(initiateFlow(instituicaoFinanceira)) else Collections.emptyList()
 
             // Finalising the transaction.
-            val finalisedTx = subFlow(FinalityFlow(fullyStx, emptyList()))
+            val finalisedTx = subFlow(FinalityFlow(fullyStx, sessions))
             return finalisedTx.tx.outputsOfType<PropostaState>().single().linearId
         }
     }
