@@ -1,16 +1,12 @@
 package br.com.fiap.mba.mscambio.resources.impl
 
-import br.com.fiap.mba.mscambio.converters.EnvioPropostaConverter
-import br.com.fiap.mba.mscambio.exceptions.PropostaInvalidaException
-import br.com.fiap.mba.mscambio.gateways.NodeRPCConnection
+import br.com.fiap.mba.mscambio.converters.PropostaConverter
 import br.com.fiap.mba.mscambio.services.CambioService
-import net.corda.core.identity.CordaX500Name
 import org.openapi.cambio.server.api.V1Api
 import org.openapi.cambio.server.model.PropostaNegociacao
 import org.openapi.cambio.server.model.PropostaNegociacaoRequest
 import org.openapi.cambio.server.model.PropostaNegociacaoResponse
 import org.openapi.cambio.server.model.TransicaoDisponivel
-import org.springframework.context.MessageSource
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
@@ -18,18 +14,14 @@ import java.util.*
 
 @RestController
 open class CambioResourceImpl(
-    private val envioPropostaConverter: EnvioPropostaConverter,
-    private val messageSource: MessageSource,
-    private val service: CambioService,
-    rpc: NodeRPCConnection
+    private val propostaConverter: PropostaConverter,
+    private val service: CambioService
 ) : V1Api {
 
     companion object {
 
         const val I18N_INSTITUICAO_INVALIDA = "instituicao.invalida"
     }
-
-    private val proxy = rpc.proxy
 
     override fun alterarStatusTransicao(
         id: UUID?
@@ -38,24 +30,12 @@ open class CambioResourceImpl(
     }
 
     override fun enviarPropostaNegociacao(
-        propostaNegociacaoRequest: PropostaNegociacaoRequest?
+        propostaNegociacaoRequest: PropostaNegociacaoRequest
     ): ResponseEntity<PropostaNegociacaoResponse> {
 
-        val x500Name = propostaNegociacaoRequest?.instituicaoFinanceira?.let { CordaX500Name.parse(it) }
+        val dto = this.propostaConverter.from(propostaNegociacaoRequest)
 
-        requireNotNull(x500Name) {
-
-            val mensagem = this.messageSource.getMessage(I18N_INSTITUICAO_INVALIDA, null, Locale("pt", "BR"))
-
-            throw PropostaInvalidaException(mensagem)
-        }
-
-        val dto = this.envioPropostaConverter.convert(propostaNegociacaoRequest)
-
-        val uniqueIdentifier = this.service.enviarPropostaNegociacao(
-            dto,
-            proxy
-        )
+        val uniqueIdentifier = this.service.enviarPropostaNegociacao(dto)
 
         val response = PropostaNegociacaoResponse()
         response.id = uniqueIdentifier.id
@@ -66,7 +46,14 @@ open class CambioResourceImpl(
     override fun recuperarPropostaNegociacao(
         id: UUID?
     ): ResponseEntity<PropostaNegociacao> {
-        return super.recuperarPropostaNegociacao(id)
+
+        val propostaState = this.service.recuperarPropostaNegociacao(id).state.data
+
+        System.out.println(propostaState)
+
+        val response = this.propostaConverter.from(propostaState)
+
+        return ResponseEntity(response, HttpStatus.OK)
     }
 
     override fun recuperarTransicoesDisponiveis(

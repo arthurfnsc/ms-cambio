@@ -6,7 +6,7 @@ import java.math.BigDecimal
 
 @KotlinBuilder
 data class EnvioPropostaDTO(
-    val instituicaoFinanceira: String,
+    val instituicaoFinanceira: String?,
     val moeda: String,
     val quantidade: Int,
     val cotacaoReal: BigDecimal,
