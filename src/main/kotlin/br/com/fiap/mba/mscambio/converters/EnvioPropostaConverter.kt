@@ -17,8 +17,8 @@ interface EnvioPropostaConverter {
             target = "moeda"
         ),
         Mapping(
-            source = "valorMoeda",
-            target = "valor"
+            source = "quantidadeMoeda",
+            target = "quantidade"
         ),
         Mapping(
             source = "taxaPretendida",

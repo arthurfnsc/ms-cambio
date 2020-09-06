@@ -8,6 +8,7 @@ import java.math.BigDecimal
 data class EnvioPropostaDTO(
     val instituicaoFinanceira: String,
     val moeda: String,
-    val valor: BigDecimal,
+    val quantidade: Int,
+    val cotacaoReal: BigDecimal,
     val taxa: BigDecimal
 )

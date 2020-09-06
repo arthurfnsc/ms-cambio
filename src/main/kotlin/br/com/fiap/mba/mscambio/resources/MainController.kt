@@ -1,6 +1,6 @@
 package br.com.fiap.mba.mscambio.resources
 
-import br.com.fiap.mba.mscambio.rpc.NodeRPCConnection
+import br.com.fiap.mba.mscambio.corda.rpc.NodeRPCConnection
 import net.corda.core.contracts.ContractState
 import net.corda.core.messaging.vaultQueryBy
 import org.slf4j.LoggerFactory

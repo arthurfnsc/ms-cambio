@@ -1,4 +1,4 @@
-package br.com.fiap.mba.mscambio.rpc
+package br.com.fiap.mba.mscambio.corda.rpc
 
 import net.corda.client.rpc.CordaRPCClient
 import net.corda.client.rpc.CordaRPCConnection

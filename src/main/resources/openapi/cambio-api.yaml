@@ -28,7 +28,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PropostaNegociacao"
+                $ref: "#/components/schemas/PropostaNegociacaoResponse"
         "400":
           description: "Bad Request"
           content:
@@ -211,12 +211,15 @@ components:
           enum:
             - "EUR"
             - "USD"
-        valor_moeda:
-          description: "Valor da moeda da negociação"
+        quantidade_moeda:
+          description: "Quantidade de moeda da negociação"
+          type: integer
+        cotacao_real:
+          description: "Cotação da moeda em reais da negociação"
           type: number
           format: double
         taxa_pretendida:
-          description: "Taxa do mercado"
+          description: "Taxa do pretendida de negociação"
           type: number
           format: double
         status_transacao:
@@ -254,12 +257,24 @@ components:
           enum:
             - "EUR"
             - "USD"
-        valor_moeda:
-          description: "Valor da moeda da negociação"
+        quantidade_moeda:
+          description: "Quantidade de moeda da negociação"
+          type: integer
+        cotacao_real:
+          description: "Cotação da moeda em reais da negociação"
           type: number
           format: double
         taxa_pretendida:
-          description: "Taxa do mercado"
+          description: "Taxa do pretendida de negociação"
           type: number
           format: double
       additionalProperties: false
+
+    PropostaNegociacaoResponse:
+      description: "Dados de resposta de negociação de proposta"
+      type: object
+      properties:
+        id:
+          description: "Identificador de Negociação de Proposta"
+          type: string
+          format: uuid
