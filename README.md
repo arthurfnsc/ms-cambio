@@ -106,7 +106,7 @@ configurações se encontram no arquivo **build.gradle**
 dentro da task **deployNodes**
 
 ```console
-foo@bar:ms-cambio$ [./gradlew | gradlew.bat] clean application:cordapp-flows:deployNodes 
+foo@bar:ms-cambio$ [./gradlew | gradlew.bat] clean deployNodes 
 foo@bar:ms-cambio$ [./build/nodes/runnodes | .\build\nodes\runnodes.bat]
 ```
 
