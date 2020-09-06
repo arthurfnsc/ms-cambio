@@ -11,7 +11,8 @@ import net.corda.core.transactions.LedgerTransaction
 class NegociacaoContract : Contract {
 
     companion object {
-        const val ID = "br.com.fiap.mba.corda.contracts.NegociacaoContract"
+
+        val ID = NegociacaoContract::class.qualifiedName
     }
 
     override fun verify(tx: LedgerTransaction) {

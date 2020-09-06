@@ -12,6 +12,7 @@ data class NegociacaoState(
     val taxa: BigDecimal,
     val comprador: Party,
     val vendedor: Party,
-    override val linearId: UniqueIdentifier = UniqueIdentifier()) : LinearState {
+    override val linearId: UniqueIdentifier = UniqueIdentifier()
+) : LinearState {
     override val participants = listOf(comprador, vendedor)
 }

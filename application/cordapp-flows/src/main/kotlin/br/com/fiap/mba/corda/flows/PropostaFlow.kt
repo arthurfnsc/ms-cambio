@@ -19,9 +19,7 @@ import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import java.math.BigDecimal
-import java.time.LocalDateTime
 import java.util.*
-
 
 object PropostaFlow {
 
@@ -32,13 +30,15 @@ object PropostaFlow {
         private val moeda: String,
         private val quantidade: Int,
         private val cotacaoReal: BigDecimal,
-        private val taxa: BigDecimal,
+        private val taxa: BigDecimal
     ) : FlowLogic<UniqueIdentifier>() {
+
         override val progressTracker = ProgressTracker()
 
         @Suspendable
         override fun call(): UniqueIdentifier {
 
+            // Creating the output.
             val output = PropostaState(
                 comprador = ourIdentity,
                 proponente = ourIdentity,
@@ -47,8 +47,7 @@ object PropostaFlow {
                 moeda = moeda,
                 quantidade = quantidade,
                 cotacaoReal = cotacaoReal,
-                taxa = taxa,
-                atualizadoEm = LocalDateTime.now()
+                taxa = taxa
             )
 
             // Creating the command.
@@ -57,20 +56,31 @@ object PropostaFlow {
             val command = Command(commandType, requiredSigners)
 
             // Building the transaction.
-            val notary = serviceHub.networkMapCache.notaryIdentities.first()
+
+            // Obtain a reference from a notary we wish to use.
+            /**
+             *  METHOD 1: Take first notary on network, WARNING: use for test, non-prod environments, and single-notary networks only!*
+             *  METHOD 2: Explicit selection of notary by CordaX500Name - argument can by coded in flow or parsed from config (Preferred)
+             *
+             *  * - For production you always want to use Method 2 as it guarantees the expected notary is returned.
+             */
+            val notary = serviceHub.networkMapCache.notaryIdentities.single() // METHOD 1
+            // val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")) // METHOD 2
 
             val txBuilder = TransactionBuilder(notary)
-            txBuilder.addOutputState(output, NegociacaoContract.ID)
+            NegociacaoContract.ID?.let { txBuilder.addOutputState(output, it) }
             txBuilder.addCommand(command)
 
             // Signing the transaction ourselves.
             val partStx = serviceHub.signInitialTransaction(txBuilder)
 
             // Gathering the counterparty's signature.
-            val counterpartySession = initiateFlow(instituicaoFinanceira)
-            val fullyStx = subFlow(CollectSignaturesFlow(partStx, listOf(counterpartySession)))
+            val sessions: List<FlowSession> = if (!serviceHub.myInfo.isLegalIdentity(instituicaoFinanceira))
+                Collections.singletonList(initiateFlow(instituicaoFinanceira))
+            else
+                Collections.emptyList()
 
-            val sessions: List<FlowSession> = if (!serviceHub.myInfo.isLegalIdentity(instituicaoFinanceira)) Collections.singletonList(initiateFlow(instituicaoFinanceira)) else Collections.emptyList()
+            val fullyStx = subFlow(CollectSignaturesFlow(partStx, sessions))
 
             // Finalising the transaction.
             val finalisedTx = subFlow(FinalityFlow(fullyStx, sessions))

@@ -4,6 +4,7 @@ import br.com.fiap.mba.corda.flows.AceitePropostaFlow
 import br.com.fiap.mba.corda.flows.ContraPropostaFlow
 import br.com.fiap.mba.corda.flows.PropostaFlow
 import br.com.fiap.mba.corda.flows.RecusaPropostaFlow
+import br.com.fiap.mba.corda.states.NegociacaoState
 import br.com.fiap.mba.corda.states.PropostaState
 import br.com.fiap.mba.mscambio.dtos.EnvioPropostaDTO
 import br.com.fiap.mba.mscambio.dtos.Transicao

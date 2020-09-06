@@ -21,20 +21,22 @@ import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
+import java.util.*
 
 object RecusaPropostaFlow {
-
     @InitiatingFlow
     @StartableByRPC
     class Initiator(
-        private val propostaId: UniqueIdentifier
+        private val proposalId: UniqueIdentifier
     ) : FlowLogic<Unit>() {
+
         override val progressTracker = ProgressTracker()
 
         @Suspendable
         override fun call() {
+
             // Retrieving the input from the vault.
-            val inputCriteria = QueryCriteria.LinearStateQueryCriteria(linearId = listOf(propostaId))
+            val inputCriteria = QueryCriteria.LinearStateQueryCriteria(linearId = listOf(proposalId))
             val inputStateAndRef = serviceHub.vaultService.queryBy<PropostaState>(inputCriteria).states.single()
             val input = inputStateAndRef.state.data
 
@@ -54,7 +56,7 @@ object RecusaPropostaFlow {
             val notary = inputStateAndRef.state.notary
             val txBuilder = TransactionBuilder(notary)
             txBuilder.addInputState(inputStateAndRef)
-            txBuilder.addOutputState(output, NegociacaoContract.ID)
+            NegociacaoContract.ID?.let { txBuilder.addOutputState(output, it) }
             txBuilder.addCommand(command)
 
             // Signing the transaction ourselves.
@@ -62,11 +64,16 @@ object RecusaPropostaFlow {
 
             // Gathering the counterparty's signature.
             val counterparty = if (ourIdentity == input.proponente) input.oblato else input.proponente
-            val counterpartySession = initiateFlow(counterparty)
-            val fullyStx = subFlow(CollectSignaturesFlow(partStx, listOf(counterpartySession)))
+
+            val sessions: List<FlowSession> = if (!serviceHub.myInfo.isLegalIdentity(counterparty))
+                Collections.singletonList(initiateFlow(counterparty))
+            else
+                Collections.emptyList()
+
+            val fullyStx = subFlow(CollectSignaturesFlow(partStx, sessions))
 
             // Finalising the transaction.
-            subFlow(FinalityFlow(fullyStx, listOf(counterpartySession)))
+            subFlow(FinalityFlow(fullyStx, sessions))
         }
     }
 
@@ -79,8 +86,8 @@ object RecusaPropostaFlow {
             val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
                 override fun checkTransaction(stx: SignedTransaction) {
                     val ledgerTx = stx.toLedgerTransaction(serviceHub, false)
-                    val oblato = ledgerTx.inputsOfType<PropostaState>().single().oblato
-                    if (oblato != counterpartySession.counterparty) {
+                    val proposee = ledgerTx.inputsOfType<PropostaState>().single().oblato
+                    if (proposee != counterpartySession.counterparty) {
                         throw FlowException("Só um oblato pode recusar a proposta.")
                     }
                 }
