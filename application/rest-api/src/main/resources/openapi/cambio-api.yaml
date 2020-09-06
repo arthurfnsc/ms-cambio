@@ -1,0 +1,280 @@
+openapi: "3.0.0"
+info:
+  version: "1.0.0"
+  title: "Cambio REST API"
+servers:
+  - url: "{server}"
+    variables:
+      server:
+        default: "https://api.example.com"
+paths:
+  "/v1/cambios/negociacoes/propostas":
+    post:
+      summary: "Envio de negociação de câmbio"
+      description: "O valor da taxa cambial é livremente pactuado pelo mercado esse movimento de negociações se dá o valor da taxa cambial, o câmbio sofre forte influência da BOVESPA e os setores que atuam no mercado primário, com operações cambiais de Exportação e Importação refletindo maior parte do mercado.\n
+
+      A corretora cria uma ordem de negociação interbancária que poderá ser aceita, recusada ou sofrer uma contra proposta"
+      operationId: "enviarPropostaNegociacao"
+      requestBody:
+        description: "Parâmetros de proposta."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PropostaNegociacaoRequest"
+      responses:
+        "201":
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PropostaNegociacaoResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  "/v1/cambios/negociacoes/propostas/{id}":
+    get:
+      summary: "Recuperar negociação de câmbio"
+      description: "Recuperar negociação de câmbio."
+      operationId: "recuperarPropostaNegociacao"
+      parameters:
+        - in: path
+          name: "id"
+          description: "Identificador de Negociação de Proposta."
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PropostaNegociacao"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  "/v1/cambios/negociacoes/propostas/{id}/transicoes":
+    get:
+      summary: "Recuperar transições disponíveis de negociação de câmbio"
+      description: "Recuperar transições disponíveis de negociação de câmbio do usuário."
+      operationId: "recuperarTransicoesDisponiveis"
+      parameters:
+        - in: path
+          name: "id"
+          description: "Identificador de Negociação de Proposta."
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransicoesDisponiveisArray"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: "Alterar status transição de negociação de câmbio"
+      description: "Alterar transição de negociação de câmbio do usuário."
+      operationId: "alterarStatusTransicao"
+      parameters:
+        - in: path
+          name: "id"
+          description: "Identificador de Negociação de Proposta."
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PropostaNegociacao"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+
+    Error:
+      description: "Error"
+      type: object
+      properties:
+        httpCode:
+          description: "HTTP Code. ex:  400, 401, 404."
+          type: integer
+        httpMessage:
+          description: "HTTP Status Message. ex: Bad Request, Unauthorized, Not Found."
+          type: string
+        description:
+          description: "Error description."
+          type: string
+        parametrosInvalidos:
+          $ref: "#/components/schemas/InvalidParameterArray"
+
+    InvalidParameter:
+      description: "Invalid Parameter"
+      type: object
+      properties:
+        nome:
+          description: "Parameter name"
+          type: string
+        descricao:
+          description: "Parameter description"
+          type: string
+
+    InvalidParameterArray:
+      description: "Invalid parameter list"
+      type: array
+      items:
+        $ref: "#/components/schemas/InvalidParameter"
+
+    TransicaoDisponivel:
+      description: "Transicao Disponível"
+      type: object
+      properties:
+        transicao:
+          description: "Nome de transição disponível"
+          type: string
+          enum:
+            - "Aceitar"
+            - "Contra-Proposta"
+            - "Rejeitar"
+      additionalProperties: false
+
+    TransicoesDisponiveisArray:
+      description: "Lista de transações disponíveis"
+      type: array
+      items:
+        $ref: "#/components/schemas/TransicaoDisponivel"
+
+    PropostaNegociacao:
+      description: "Negociação de Proposta"
+      type: object
+      properties:
+        id:
+          description: "Identificador de Negociação de Proposta"
+          type: string
+          format: uuid
+        instituicao_financeira:
+          description: "Nome de instituição financeira que receberá a proposta"
+          type: string
+        nome_moeda:
+          description: "Nome da moeda da negociação"
+          type: string
+          enum:
+            - "EUR"
+            - "USD"
+        quantidade_moeda:
+          description: "Quantidade de moeda da negociação"
+          type: integer
+        cotacao_real:
+          description: "Cotação da moeda em reais da negociação"
+          type: number
+          format: double
+        taxa_pretendida:
+          description: "Taxa do pretendida de negociação"
+          type: number
+          format: double
+        status_transacao:
+          description: "Status de transação"
+          type: string
+          enum:
+            - "Aberta"
+            - "Aceita"
+            - "Contra-Proposta"
+            - "Rejeitada"
+        criado_em:
+          description: "Data de criação de registro"
+          type: string
+          format: date-time
+        atualizado_em:
+          description: "Data de atualização de registro"
+          type: string
+          format: date-time
+      additionalProperties: false
+
+    PropostaNegociacaoRequest:
+      description: "Dados de requisição de negociação de proposta"
+      type: object
+      required:
+        - "instituicao_financeira"
+        - "nome_moeda"
+        - "valor_moeda"
+      properties:
+        instituicao_financeira:
+          description: "Nome de instituição financeira que receberá a proposta"
+          type: string
+        nome_moeda:
+          description: "Nome da moeda da negociação"
+          type: string
+          enum:
+            - "EUR"
+            - "USD"
+        quantidade_moeda:
+          description: "Quantidade de moeda da negociação"
+          type: integer
+        cotacao_real:
+          description: "Cotação da moeda em reais da negociação"
+          type: number
+          format: double
+        taxa_pretendida:
+          description: "Taxa do pretendida de negociação"
+          type: number
+          format: double
+      additionalProperties: false
+
+    PropostaNegociacaoResponse:
+      description: "Dados de resposta de negociação de proposta"
+      type: object
+      properties:
+        id:
+          description: "Identificador de Negociação de Proposta"
+          type: string
+          format: uuid

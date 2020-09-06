@@ -106,7 +106,7 @@ configurações se encontram no arquivo **build.gradle**
 dentro da task **deployNodes**
 
 ```console
-foo@bar:ms-cambio$ [./gradlew | gradlew.bat] clean deployNodes
+foo@bar:ms-cambio$ [./gradlew | gradlew.bat] clean application:cordapp-flows:deployNodes 
 foo@bar:ms-cambio$ [./build/nodes/runnodes | .\build\nodes\runnodes.bat]
 ```
 
@@ -115,8 +115,8 @@ para isso, basta executar as seguintes tasks também presentes no
 arquivo **build.gradle**
 
 ```console
-foo@bar:ms-cambio$ [./gradlew | gradlew.bat] runBancoServer
-foo@bar:ms-cambio$ [./gradlew | gradlew.bat] runCorretoraServer
+foo@bar:ms-cambio$ [./gradlew | gradlew.bat] application:rest-api:runBancoServer
+foo@bar:ms-cambio$ [./gradlew | gradlew.bat] application:rest-api:runCorretoraServer
 ```
 
 Como o propósito do desafio foi realizar uma Prova de Conceito,  

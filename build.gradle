@@ -3,39 +3,42 @@ plugins {
     id "com.appmattus.markdown" version "0.6.0" apply false
     id "com.github.ben-manes.versions" version "0.29.0" apply false
     id "io.gitlab.arturbosch.detekt" version "1.12.0" apply false
-    id "io.spring.dependency-management" version "1.0.10.RELEASE"
     id "net.corda.plugins.cordapp" version "5.0.11"
     id "net.corda.plugins.cordformation" version "5.0.11"
     id "net.corda.plugins.quasar-utils" version "5.0.11"
-    id "net.ltgt.apt" version "0.21" apply false
     id "net.ossindex.audit" version "0.4.11" apply false
     id "org.jetbrains.dokka" version "0.10.1" apply false
     id "org.jetbrains.kotlin.jvm" version "1.4.0"
-    id "org.jetbrains.kotlin.plugin.spring" version "1.4.0" apply false
-    id "org.openapi.generator" version "4.3.0" apply false
     id "org.owasp.dependencycheck" version "5.3.2.1" apply false
     id "org.sonarqube" version "3.0" apply false
-    id "org.springframework.boot" version "2.3.3.RELEASE"
 }
 
 ext {
 
+    aptVersion = "0.21"
     artemisJmsVersion = "2.6.2"
     assertJVersion = "3.17.1"
     cordaVersion = "4.5"
+    cordaPluginVersion = "5.0.11"
     detektVersion = "1.12.0"
     gradleWrapperVersion = "6.6.1"
     jacksonDatabindNullableVersion = "0.2.1"
     jsonVersion = "1.1.4"
     junitVersion = "5.6.2"
+    kotlinVersion = "1.4.0"
+    log4jVersion= "2.11.2"
     mapstructKotlinVersion = "1.4.0.0"
     mapstructVersion = "1.3.1.Final"
     mockitoVersion = "3.5.10"
     openAPIGeneratorVersion = "4.3.0"
+    slf4jVersion = "1.7.29"
+    springBootVersion = "2.3.3.RELEASE"
+    springDependencyVersion = "1.0.10.RELEASE"
     springFoxVersion = "3.0.0"
 
     cordaGroup = "net.corda"
     kotlinGroup = "org.jetbrains.kotlin"
+    log4jGroup = "org.apache.logging.log4j"
     springBootGroup = "org.springframework.boot"
     springFoxGroup = "io.springfox"
 
@@ -48,10 +51,6 @@ ext {
             "$cordaGroup:corda-node-api:$cordaVersion",
             "$cordaGroup:corda-rpc:$cordaVersion"
         ],
-        kotlin : [
-            "$kotlinGroup:kotlin-reflect",
-            "$kotlinGroup:kotlin-stdlib-jdk8"
-        ],
         openApiServer : [
             "org.openapitools:jackson-databind-nullable:$jacksonDatabindNullableVersion"
         ],
@@ -61,12 +60,6 @@ ext {
         ],
         springFox : [
             "$springFoxGroup:springfox-boot-starter:$springFoxVersion"
-        ],
-        unitTest : [
-            "org.assertj:assertj-core:$assertJVersion",
-            "org.junit.jupiter:junit-jupiter-api:$junitVersion",
-            "org.mockito:mockito-core:$mockitoVersion",
-            "$springBootGroup:spring-boot-starter-test"
         ]
     ]
 }
@@ -74,51 +67,65 @@ ext {
 group = "br.com.fiap.mba.ms-cambio"
 version = "0.0.1-SNAPSHOT"
 
-repositories {
-
-    mavenLocal()
-    mavenCentral()
-    maven {url "https://ci-artifactory.corda.r3cev.com/artifactory/corda"}
-    jcenter()
-}
-
-apply from: "$rootDir/plugins/kotlin.gradle"
-
-apply from: "$rootDir/plugins/docs.gradle"
-apply from: "$rootDir/plugins/ides.gradle"
-apply from: "$rootDir/plugins/jacoco.gradle"
-apply from: "$rootDir/plugins/lint.gradle"
-apply from: "$rootDir/plugins/mapstruct.gradle"
-apply from: "$rootDir/plugins/openapi.gradle"
-apply from: "$rootDir/plugins/security.gradle"
 apply from: "$rootDir/plugins/sonarqube.gradle"
 
-dependencies {
+configure(allprojects - project(":application")) {
 
-    api "com.github.pozo:mapstruct-kotlin:$mapstructKotlinVersion"
+    apply from: "$rootDir/plugins/kotlin.gradle"
+
+    apply from: "$rootDir/plugins/docs.gradle"
+    apply from: "$rootDir/plugins/ides.gradle"
+    apply from: "$rootDir/plugins/jacoco.gradle"
+    apply from: "$rootDir/plugins/lint.gradle"
+    apply from: "$rootDir/plugins/security.gradle"
+
+    repositories {
+
+        mavenLocal()
+        mavenCentral()
+        maven {url "https://ci-artifactory.corda.r3cev.com/artifactory/corda"}
+        jcenter()
+    }
+
+    dependencies {
+
+        libs.kotlin = [
+            "$kotlinGroup:kotlin-reflect",
+            "$kotlinGroup:kotlin-stdlib-jdk8"
+        ]
+
+        libs.unitTest = [
+            "org.assertj:assertj-core:$assertJVersion",
+            "org.junit.jupiter:junit-jupiter-api:$junitVersion",
+            "org.mockito:mockito-core:$mockitoVersion"
+        ]
+
+        detektPlugins "io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion"
+
+        implementation libs.kotlin
+
+        testImplementation libs.unitTest
+
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    }
+
+    test {
+
+        useJUnitPlatform()
+    }
+}
+
+dependencies {
 
     cordaCompile libs.corda
 
     cordaRuntime "$cordaGroup:corda:$cordaVersion"
 
-    detektPlugins "io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion"
+    cordapp project(":application:cordapp-contracts-states")
+    cordapp project(":application:cordapp-flows")
 
-    kapt "com.github.pozo:mapstruct-kotlin-processor:$mapstructKotlinVersion"
-    kapt "org.mapstruct:mapstruct-processor:$mapstructVersion"
-
-    implementation libs.kotlin
-    implementation libs.openApiServer
-    implementation libs.springBoot
-    implementation libs.springFox
-
-    implementation "javax.json:javax.json-api:$jsonVersion"
-    implementation "org.mapstruct:mapstruct:$mapstructVersion"
-    implementation "org.apache.activemq:artemis-jms-server:$artemisJmsVersion"
-    implementation "org.openapitools:jackson-databind-nullable:$jacksonDatabindNullableVersion"
-
-    testImplementation libs.unitTest
-
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    implementation "org.slf4j:slf4j-api:$slf4jVersion"
+    implementation "org.slf4j:slf4j-simple:$slf4jVersion"
 }
 
 wrapper {
@@ -132,8 +139,12 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         throw new GradleException("This build must be run with java 8")
     }
 
+    directory "$rootDir/build/nodes"
+
     nodeDefaults {
         projectCordapp { deploy = false }
+        cordapp project(':application:cordapp-contracts-states')
+        cordapp project(':application:cordapp-flows')
     }
 
     node {
@@ -143,7 +154,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
             address("localhost:10010")
             adminAddress("localhost:10020")
         }
-        rpcUsers = [[ user: "user1", "password": "test1", "permissions": ["ALL"]]]
+        rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
     }
 
     node {
@@ -153,28 +164,58 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
             address("localhost:10011")
             adminAddress("localhost:10021")
         }
-        rpcUsers = [[ user: "user2", "password": "test2", "permissions": ["ALL"]]]
+        rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
+    }
+
+    node {
+        name "O=Notary,L=London,C=GB"
+        notary = [validating : false]
+        p2pPort 10002
+        rpcSettings {
+            address("localhost:10012")
+            adminAddress("localhost:10022")
+        }
     }
 }
 
-task runBancoServer(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    main = "br.com.fiap.mba.mscambio.MsCambioApplicationKt"
-    args '--config.rpc.host=localhost',
-        '--config.rpc.port=10010',
-        '--config.rpc.username=user1',
-        '--config.rpc.password=test1',
-        '--server.port=50001',
-        '--spring.profiles.active=dev'
-}
+task jacocoRootReport(type: JacocoReport) {
 
-task runCorretoraServer(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    main = "br.com.fiap.mba.mscambio.MsCambioApplicationKt"
-    args '--config.rpc.host=localhost',
-        '--config.rpc.port=10011',
-        '--config.rpc.username=user2',
-        '--config.rpc.password=test2',
-        '--server.port=50002',
-        '--spring.profiles.active=dev'
+    def publishedProjects = subprojects.findAll{
+        it.name != "application" &&
+            it.name != "cordapp-contracts-states" &&
+            it.name != "cordapp-flows" &&
+            it.name != "rest-api"
+    }
+
+    dependsOn.publishedProjects.test
+
+    sourceDirectories.from = publishedProjects.sourceSets.main.allSource.srcDirs
+    additionalSourceDirs.from = publishedProjects.sourceSets.main.allSource.srcDirs
+    classDirectories.from = publishedProjects.sourceSets.main.output
+    executionData.from = publishedProjects.jacocoTestReport.executionData
+
+    reports {
+        html.enabled = true
+        xml.enabled = true
+        csv.enabled = false
+    }
+
+    onlyIf = {
+        true
+    }
+
+    doFirst {
+        getExecutionData().setFrom(files(executionData.findAll {
+            it.exists()
+        }))
+    }
+
+    afterEvaluate {
+        getClassDirectories().setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it,
+                exclude: [
+                ]
+            )
+        }))
+    }
 }

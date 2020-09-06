@@ -1,0 +1,52 @@
+plugins {
+    id "net.ltgt.apt" version "$aptVersion"
+    id "io.spring.dependency-management" version "$springDependencyVersion"
+    id "org.openapi.generator" version "$openAPIGeneratorVersion"
+    id "org.springframework.boot" version "$springBootVersion"
+    id "org.jetbrains.kotlin.plugin.spring" version "$kotlinVersion"
+}
+
+apply from: "plugins/mapstruct.gradle"
+apply from: "plugins/openapi.gradle"
+
+dependencies {
+
+    implementation project(":application:cordapp-flows")
+    implementation project(":application:cordapp-contracts-states")
+
+    api "com.github.pozo:mapstruct-kotlin:$mapstructKotlinVersion"
+
+    kapt "com.github.pozo:mapstruct-kotlin-processor:$mapstructKotlinVersion"
+    kapt "org.mapstruct:mapstruct-processor:$mapstructVersion"
+
+    implementation libs.openApiServer
+    implementation libs.springBoot
+    implementation libs.springFox
+
+    implementation "javax.json:javax.json-api:$jsonVersion"
+    implementation "org.mapstruct:mapstruct:$mapstructVersion"
+    implementation "org.apache.activemq:artemis-jms-server:$artemisJmsVersion"
+    implementation "org.openapitools:jackson-databind-nullable:$jacksonDatabindNullableVersion"
+}
+
+task runBancoServer(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = "br.com.fiap.mba.mscambio.MsCambioApplicationKt"
+    args '--config.rpc.host=localhost',
+        '--config.rpc.port=10010',
+        '--config.rpc.username=user1',
+        '--config.rpc.password=test',
+        '--server.port=50001',
+        '--spring.profiles.active=dev'
+}
+
+task runCorretoraServer(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = "br.com.fiap.mba.mscambio.MsCambioApplicationKt"
+    args '--config.rpc.host=localhost',
+        '--config.rpc.port=10011',
+        '--config.rpc.username=user1',
+        '--config.rpc.password=test',
+        '--server.port=50002',
+        '--spring.profiles.active=dev'
+}
