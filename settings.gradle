@@ -1,1 +1,5 @@
 rootProject.name = "ms-cambio"
+
+include 'application:cordapp-flows'
+include 'application:cordapp-contracts-states'
+include 'application:rest-api'
