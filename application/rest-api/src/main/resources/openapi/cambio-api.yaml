@@ -34,13 +34,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/Erro"
         "500":
           description: "Internal Server Error"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/Erro"
 
   "/v1/cambios/negociacoes/propostas/{id}":
     get:
@@ -67,13 +67,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/Erro"
         "500":
           description: "Internal Server Error"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/Erro"
 
   "/v1/cambios/negociacoes/propostas/{id}/transicoes":
     get:
@@ -100,13 +100,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/Erro"
         "500":
           description: "Internal Server Error"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/Erro"
     post:
       summary: "Alterar status transição de negociação de câmbio"
       description: "Alterar transição de negociação de câmbio do usuário."
@@ -134,13 +134,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/Erro"
         "500":
           description: "Internal Server Error"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/Erro"
 
 components:
   schemas:
@@ -155,8 +155,8 @@ components:
           type: number
           format: double
 
-    Error:
-      description: "Error"
+    Erro:
+      description: "Erro"
       type: object
       properties:
         httpCode:
@@ -165,47 +165,28 @@ components:
         httpMessage:
           description: "HTTP Status Message. ex: Bad Request, Unauthorized, Not Found."
           type: string
-        description:
-          description: "Error description."
+        descricao:
+          description: "Descrição de erro."
           type: string
         parametrosInvalidos:
-          $ref: "#/components/schemas/InvalidParameterArray"
+          $ref: "#/components/schemas/ParametroInvalidoArray"
 
-    InvalidParameter:
-      description: "Invalid Parameter"
+    ParametroInvalido:
+      description: "Parâmetro Inválido"
       type: object
       properties:
         nome:
-          description: "Parameter name"
+          description: "Nome parâmetro"
           type: string
         descricao:
-          description: "Parameter description"
+          description: "Descrição Parâmetro"
           type: string
 
-    InvalidParameterArray:
-      description: "Invalid parameter list"
+    ParametroInvalidoArray:
+      description: "Lista de Parâmetro Inválido"
       type: array
       items:
-        $ref: "#/components/schemas/InvalidParameter"
-
-    TransicaoDisponivel:
-      description: "Transicao Disponível"
-      type: object
-      properties:
-        transicao:
-          description: "Nome de transição disponível"
-          type: string
-          enum:
-            - "Aceitado"
-            - "Contra-Proposta"
-            - "Rejeitado"
-      additionalProperties: false
-
-    TransicoesDisponiveisArray:
-      description: "Lista de transações disponíveis"
-      type: array
-      items:
-        $ref: "#/components/schemas/TransicaoDisponivel"
+        $ref: "#/components/schemas/ParametroInvalido"
 
     PropostaNegociacao:
       description: "Negociação de Proposta"
@@ -291,3 +272,22 @@ components:
           description: "Identificador de Negociação de Proposta"
           type: string
           format: uuid
+
+    TransicaoDisponivel:
+      description: "Transicao Disponível"
+      type: object
+      properties:
+        transicao:
+          description: "Nome de transição disponível"
+          type: string
+          enum:
+            - "Aceitado"
+            - "Contra-Proposta"
+            - "Rejeitado"
+      additionalProperties: false
+
+    TransicoesDisponiveisArray:
+      description: "Lista de transações disponíveis"
+      type: array
+      items:
+        $ref: "#/components/schemas/TransicaoDisponivel"

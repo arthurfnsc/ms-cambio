@@ -56,6 +56,7 @@ ext {
         ],
         springBoot : [
             "$springBootGroup:spring-boot-starter",
+            "$springBootGroup:spring-boot-starter-validation",
             "$springBootGroup:spring-boot-starter-web"
         ],
         springFox : [

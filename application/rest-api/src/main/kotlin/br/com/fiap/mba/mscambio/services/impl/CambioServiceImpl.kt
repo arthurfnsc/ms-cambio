@@ -7,10 +7,13 @@ import br.com.fiap.mba.corda.flows.RecusaPropostaFlow
 import br.com.fiap.mba.corda.states.PropostaState
 import br.com.fiap.mba.mscambio.dtos.EnvioPropostaDTO
 import br.com.fiap.mba.mscambio.dtos.Transicao
-import br.com.fiap.mba.mscambio.exceptions.PropostaInvalidaException
+import br.com.fiap.mba.mscambio.exceptions.DestinatarioException
+import br.com.fiap.mba.mscambio.exceptions.InstituicaoFinanceiraException
+import br.com.fiap.mba.mscambio.exceptions.RemetenteException
 import br.com.fiap.mba.mscambio.gateways.NodeRPCConnection
 import br.com.fiap.mba.mscambio.resources.impl.CambioResourceImpl
 import br.com.fiap.mba.mscambio.services.CambioService
+import net.corda.core.CordaException
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.CordaX500Name
@@ -71,7 +74,7 @@ open class CambioServiceImpl(
 
             val mensagem = this.messageSource.getMessage(I18N_REQUISICAO_INVALIDA, null, Locale("pt", "BR"))
 
-            throw PropostaInvalidaException(mensagem)
+            throw CordaException(mensagem)
         }
     }
 
@@ -79,13 +82,15 @@ open class CambioServiceImpl(
         propostaNegociacao: EnvioPropostaDTO
     ): UniqueIdentifier {
 
-        val x500Name = propostaNegociacao.instituicaoFinanceira?.let { CordaX500Name.parse(it) }
+        val x500Name = propostaNegociacao.instituicaoFinanceira?.let {
+            CordaX500Name.parse(it)
+        }
 
         requireNotNull(x500Name) {
 
             val mensagem = this.messageSource.getMessage(CambioResourceImpl.I18N_INSTITUICAO_INVALIDA, null, Locale("pt", "BR"))
 
-            throw PropostaInvalidaException(mensagem)
+            throw InstituicaoFinanceiraException(mensagem)
         }
 
         val remetente = this.proxy.nodeInfo().legalIdentities[0]
@@ -94,14 +99,14 @@ open class CambioServiceImpl(
 
             val mensagem = this.messageSource.getMessage(I18N_REMETENTE_INVALIDO, null, Locale("pt", "BR"))
 
-            throw PropostaInvalidaException(mensagem)
+            throw RemetenteException(mensagem)
         }
 
         require(remetente.toString() != propostaNegociacao.instituicaoFinanceira) {
 
             val mensagem = this.messageSource.getMessage(I18N_DESTINATARIO_INVALIDO, null, Locale("pt", "BR"))
 
-            throw PropostaInvalidaException(mensagem)
+            throw DestinatarioException(mensagem)
         }
 
         return try {
@@ -118,7 +123,7 @@ open class CambioServiceImpl(
 
             val mensagem = this.messageSource.getMessage(I18N_REQUISICAO_INVALIDA, null, Locale("pt", "BR"))
 
-            throw PropostaInvalidaException(mensagem)
+            throw CordaException(mensagem)
         }
     }
 
@@ -130,7 +135,7 @@ open class CambioServiceImpl(
 
             val mensagem = this.messageSource.getMessage(I18N_ID_INVALIDO, null, Locale("pt", "BR"))
 
-            throw PropostaInvalidaException(mensagem)
+            throw RemetenteException(mensagem)
         }
 
         val criteria = QueryCriteria.VaultQueryCriteria(status = Vault.StateStatus.ALL)
