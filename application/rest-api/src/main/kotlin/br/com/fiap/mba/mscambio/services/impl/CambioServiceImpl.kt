@@ -1,8 +1,12 @@
 package br.com.fiap.mba.mscambio.services.impl
 
+import br.com.fiap.mba.corda.flows.AceitePropostaFlow
+import br.com.fiap.mba.corda.flows.ContraPropostaFlow
 import br.com.fiap.mba.corda.flows.PropostaFlow
+import br.com.fiap.mba.corda.flows.RecusaPropostaFlow
 import br.com.fiap.mba.corda.states.PropostaState
 import br.com.fiap.mba.mscambio.dtos.EnvioPropostaDTO
+import br.com.fiap.mba.mscambio.dtos.Transicao
 import br.com.fiap.mba.mscambio.exceptions.PropostaInvalidaException
 import br.com.fiap.mba.mscambio.gateways.NodeRPCConnection
 import br.com.fiap.mba.mscambio.resources.impl.CambioResourceImpl
@@ -10,7 +14,6 @@ import br.com.fiap.mba.mscambio.services.CambioService
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.CordaX500Name
-import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.startTrackedFlow
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.Vault
@@ -22,7 +25,7 @@ import java.util.*
 
 @Service
 open class CambioServiceImpl(
-    private val rpc: NodeRPCConnection,
+    rpc: NodeRPCConnection,
     private val messageSource: MessageSource
 ) : CambioService {
 
@@ -37,8 +40,39 @@ open class CambioServiceImpl(
 
     private val proxy = rpc.proxy
 
-    override fun alterarStatusTransicao() {
-        TODO("Not yet implemented")
+    override fun alterarStatusTransicao(
+        uuid: UUID?,
+        transicao: Transicao,
+        novaTaxa: Double?
+    ) {
+
+        try {
+
+            when(transicao) {
+
+                Transicao.ACEITADO -> this.proxy.startTrackedFlow(
+                    AceitePropostaFlow::Initiator,
+                    UniqueIdentifier(id = uuid!!)
+                ).returnValue.getOrThrow()
+
+                Transicao.CONTRA_PROPOSTA -> this.proxy.startTrackedFlow(
+                    ContraPropostaFlow::Initiator,
+                    UniqueIdentifier(id = uuid!!),
+                    novaTaxa?.toBigDecimal()
+                ).returnValue.getOrThrow()
+
+                Transicao.REJEITADO -> this.proxy.startTrackedFlow(
+                    RecusaPropostaFlow::Initiator,
+                    UniqueIdentifier(id = uuid!!)
+                ).returnValue.getOrThrow()
+            }
+
+        } catch (ex: Throwable) {
+
+            val mensagem = this.messageSource.getMessage(I18N_REQUISICAO_INVALIDA, null, Locale("pt", "BR"))
+
+            throw PropostaInvalidaException(mensagem)
+        }
     }
 
     override fun enviarPropostaNegociacao(
@@ -74,7 +108,7 @@ open class CambioServiceImpl(
 
             this.proxy.startTrackedFlow (
                 PropostaFlow::Initiator,
-                    remetente,
+                    this.proxy.wellKnownPartyFromX500Name(x500Name)!!,
                     propostaNegociacao.moeda,
                     propostaNegociacao.quantidade,
                     propostaNegociacao.cotacaoReal,
@@ -101,7 +135,13 @@ open class CambioServiceImpl(
 
         val criteria = QueryCriteria.VaultQueryCriteria(status = Vault.StateStatus.ALL)
 
-        return this.proxy.vaultQueryBy<PropostaState>(criteria).states.first()
+        val statesProposta = this.proxy.vaultQueryBy<PropostaState>(criteria).states
+
+        val filteredStates = statesProposta.filter {
+            it.state.data.linearId == UniqueIdentifier(id = uuid)
+        }
+
+        return filteredStates.last()
     }
 
     override fun recuperarTransicoesDisponiveis() {

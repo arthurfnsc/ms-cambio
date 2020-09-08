@@ -24,7 +24,7 @@ task generateCambioApiServer(type: org.openapitools.generator.gradle.plugin.task
     modelPackage = "org.openapi.cambio.server.model"
 
     configOptions = [
-        "dateLibrary": "java8",
+        "dateLibrary": "java8-localdatetime",
         "hideGenerationTimestamp": "true",
         "interfaceOnly": "true",
         "java8": "true",

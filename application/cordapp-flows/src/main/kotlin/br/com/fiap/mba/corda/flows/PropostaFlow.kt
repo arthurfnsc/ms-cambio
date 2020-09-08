@@ -29,13 +29,15 @@ object PropostaFlow {
         private val moeda: String,
         private val quantidade: Int,
         private val cotacaoReal: BigDecimal,
-        private val taxa: BigDecimal,
+        private val taxa: BigDecimal
     ) : FlowLogic<UniqueIdentifier>() {
+
         override val progressTracker = ProgressTracker()
 
         @Suspendable
         override fun call(): UniqueIdentifier {
 
+            // Creating the output.
             val output = PropostaState(
                 comprador = ourIdentity,
                 proponente = ourIdentity,
@@ -44,7 +46,8 @@ object PropostaFlow {
                 moeda = moeda,
                 quantidade = quantidade,
                 cotacaoReal = cotacaoReal,
-                taxa = taxa
+                taxa = taxa,
+                statusTransacao = "ABERTO"
             )
 
             // Creating the command.
@@ -52,10 +55,12 @@ object PropostaFlow {
             val requiredSigners = listOf(ourIdentity.owningKey, instituicaoFinanceira.owningKey)
             val command = Command(commandType, requiredSigners)
 
+            // Obtain a reference from a notary we wish to use.
+            val notary = serviceHub.networkMapCache.notaryIdentities.single()
+
             // Building the transaction.
-            val notary = serviceHub.networkMapCache.notaryIdentities.first()
             val txBuilder = TransactionBuilder(notary)
-            txBuilder.addOutputState(output, NegociacaoContract.ID)
+            NegociacaoContract.ID?.let { txBuilder.addOutputState(output, it) }
             txBuilder.addCommand(command)
 
             // Signing the transaction ourselves.
@@ -65,10 +70,8 @@ object PropostaFlow {
             val counterpartySession = initiateFlow(instituicaoFinanceira)
             val fullyStx = subFlow(CollectSignaturesFlow(partStx, listOf(counterpartySession)))
 
-            logger.info("Gathering the counterparty's signature.")
-
             // Finalising the transaction.
-            val finalisedTx = subFlow(FinalityFlow(fullyStx, emptyList()))
+            val finalisedTx = subFlow(FinalityFlow(fullyStx, listOf(counterpartySession)))
             return finalisedTx.tx.outputsOfType<PropostaState>().single().linearId
         }
     }

@@ -1,6 +1,5 @@
 package br.com.fiap.mba.corda.contracts
 
-import br.com.fiap.mba.corda.states.NegociacaoState
 import br.com.fiap.mba.corda.states.PropostaState
 import net.corda.core.contracts.Contract
 import net.corda.core.contracts.TypeOnlyCommandData
@@ -11,7 +10,8 @@ import net.corda.core.transactions.LedgerTransaction
 class NegociacaoContract : Contract {
 
     companion object {
-        const val ID = "br.com.fiap.mba.corda.contracts.NegociacaoContract"
+
+        val ID = NegociacaoContract::class.qualifiedName
     }
 
     override fun verify(tx: LedgerTransaction) {
@@ -23,12 +23,11 @@ class NegociacaoContract : Contract {
                 "There is exactly one input" using (tx.inputStates.size == 1)
                 "The single input is of type PropostaState" using (tx.inputsOfType<PropostaState>().size == 1)
                 "There is exactly one output" using (tx.outputStates.size == 1)
-                "The single output is of type NegociacaoState" using (tx.outputsOfType<NegociacaoState>().size == 1)
                 "There is exactly one command" using (tx.commands.size == 1)
                 "There is no timestamp" using (tx.timeWindow == null)
 
                 val input = tx.inputsOfType<PropostaState>().single()
-                val output = tx.outputsOfType<NegociacaoState>().single()
+                val output = tx.outputsOfType<PropostaState>().single()
 
                 "The taxa is unmodified in the output" using (output.taxa == input.taxa)
                 "The comprador is unmodified in the output" using (input.comprador == output.comprador)
@@ -75,12 +74,12 @@ class NegociacaoContract : Contract {
                 "There is exactly one input" using (tx.inputStates.size == 1)
                 "The single input is of type PropostaState" using (tx.inputsOfType<PropostaState>().size == 1)
                 "There is exactly one output" using (tx.outputStates.size == 1)
-                "The single output is of type NegociacaoState" using (tx.outputsOfType<NegociacaoState>().size == 1)
+                "The single output is of type NegociacaoState" using (tx.outputsOfType<PropostaState>().size == 1)
                 "There is exactly one command" using (tx.commands.size == 1)
                 "There is no timestamp" using (tx.timeWindow == null)
 
                 val input = tx.inputsOfType<PropostaState>().single()
-                val output = tx.outputsOfType<NegociacaoState>().single()
+                val output = tx.outputsOfType<PropostaState>().single()
 
                 "The taxa is unmodified in the output" using (output.taxa == input.taxa)
                 "The comprador is unmodified in the output" using (input.comprador == output.comprador)

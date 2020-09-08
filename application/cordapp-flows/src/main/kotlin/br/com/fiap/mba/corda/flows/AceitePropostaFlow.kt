@@ -1,7 +1,6 @@
 package br.com.fiap.mba.corda.flows
 
 import br.com.fiap.mba.corda.contracts.NegociacaoContract
-import br.com.fiap.mba.corda.states.NegociacaoState
 import br.com.fiap.mba.corda.states.PropostaState
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.Command
@@ -21,47 +20,53 @@ import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
+import java.time.LocalDateTime
 
 object AceitePropostaFlow {
-
     @InitiatingFlow
     @StartableByRPC
     class Initiator(
-        private val propostaId: UniqueIdentifier
+        private val proposalId: UniqueIdentifier
     ) : FlowLogic<Unit>() {
+
         override val progressTracker = ProgressTracker()
 
         @Suspendable
         override fun call() {
+
             // Retrieving the input from the vault.
-            val inputCriteria = QueryCriteria.LinearStateQueryCriteria(linearId = listOf(propostaId))
+            val inputCriteria = QueryCriteria.LinearStateQueryCriteria(linearId = listOf(proposalId))
             val inputStateAndRef = serviceHub.vaultService.queryBy<PropostaState>(inputCriteria).states.single()
             val input = inputStateAndRef.state.data
 
             // Creating the output.
-            val output = NegociacaoState(
-                linearId = input.linearId,
-                comprador = input.comprador,
-                vendedor = input.vendedor,
-                taxa = input.taxa
+            val counterparty = if (ourIdentity == input.proponente) input.oblato else input.proponente
+
+            // Creating the output.
+            var output = input.copy(
+                proponente = ourIdentity,
+                oblato = counterparty,
+                atualizadoEm = LocalDateTime.now(),
+                statusTransacao = "ACEITADO"
             )
 
             // Creating the command.
             val requiredSigners = listOf(input.proponente.owningKey, input.oblato.owningKey)
             val command = Command(NegociacaoContract.Commands.Aceitar(), requiredSigners)
 
-            // Building the transaction.
+            // Obtain a reference from a notary we wish to use.
             val notary = inputStateAndRef.state.notary
+
+            // Building the transaction.
             val txBuilder = TransactionBuilder(notary)
             txBuilder.addInputState(inputStateAndRef)
-            txBuilder.addOutputState(output, NegociacaoContract.ID)
+            NegociacaoContract.ID?.let { txBuilder.addOutputState(output, it) }
             txBuilder.addCommand(command)
 
             // Signing the transaction ourselves.
             val partStx = serviceHub.signInitialTransaction(txBuilder)
 
             // Gathering the counterparty's signature.
-            val counterparty = if (ourIdentity == input.proponente) input.oblato else input.proponente
             val counterpartySession = initiateFlow(counterparty)
             val fullyStx = subFlow(CollectSignaturesFlow(partStx, listOf(counterpartySession)))
 
@@ -79,8 +84,8 @@ object AceitePropostaFlow {
             val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
                 override fun checkTransaction(stx: SignedTransaction) {
                     val ledgerTx = stx.toLedgerTransaction(serviceHub, false)
-                    val oblato = ledgerTx.inputsOfType<PropostaState>().single().oblato
-                    if (oblato != counterpartySession.counterparty) {
+                    val proposee = ledgerTx.inputsOfType<PropostaState>().single().oblato
+                    if (proposee != counterpartySession.counterparty) {
                         throw FlowException("Só um oblato pode aceitar a proposta.")
                     }
                 }

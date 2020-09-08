@@ -21,19 +21,20 @@ import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import java.math.BigDecimal
+import java.time.LocalDateTime
 
 object ContraPropostaFlow {
-
     @InitiatingFlow
     @StartableByRPC
     class Initiator(
         private val propostaId: UniqueIdentifier,
-        private val novaTaxa: BigDecimal
+        private val novaTaxa: BigDecimal?
     ) : FlowLogic<Unit>() {
         override val progressTracker = ProgressTracker()
 
         @Suspendable
         override fun call() {
+
             // Retrieving the input from the vault.
             val inputCriteria = QueryCriteria.LinearStateQueryCriteria(linearId = listOf(propostaId))
             val inputStateAndRef = serviceHub.vaultService.queryBy<PropostaState>(inputCriteria).states.single()
@@ -41,21 +42,29 @@ object ContraPropostaFlow {
 
             // Creating the output.
             val counterparty = if (ourIdentity == input.proponente) input.oblato else input.proponente
-            val output = input.copy(
-                taxa = novaTaxa,
+
+            var output = input.copy(
                 proponente = ourIdentity,
-                oblato = counterparty
+                oblato = counterparty,
+                atualizadoEm = LocalDateTime.now(),
+                statusTransacao = "CONTRA_PROPOSTA"
             )
+
+            if (novaTaxa != null) {
+                output = output.copy(taxa = novaTaxa)
+            }
 
             // Creating the command.
             val requiredSigners = listOf(input.proponente.owningKey, input.oblato.owningKey)
             val command = Command(NegociacaoContract.Commands.ContraProposta(), requiredSigners)
 
-            // Building the transaction.
+            // Obtain a reference from a notary we wish to use.
             val notary = inputStateAndRef.state.notary
+
+            // Building the transaction.
             val txBuilder = TransactionBuilder(notary)
             txBuilder.addInputState(inputStateAndRef)
-            txBuilder.addOutputState(output, NegociacaoContract.ID)
+            NegociacaoContract.ID?.let { txBuilder.addOutputState(output, it) }
             txBuilder.addCommand(command)
 
             // Signing the transaction ourselves.
@@ -77,8 +86,8 @@ object ContraPropostaFlow {
             val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
                 override fun checkTransaction(stx: SignedTransaction) {
                     val ledgerTx = stx.toLedgerTransaction(serviceHub, false)
-                    val oblato = ledgerTx.inputsOfType<PropostaState>().single().oblato
-                    if (oblato != counterpartySession.counterparty) {
+                    val proposee = ledgerTx.inputsOfType<PropostaState>().single().oblato
+                    if (proposee != counterpartySession.counterparty) {
                         throw FlowException("Só um oblato pode realizar uma contra-proposta.")
                     }
                 }
