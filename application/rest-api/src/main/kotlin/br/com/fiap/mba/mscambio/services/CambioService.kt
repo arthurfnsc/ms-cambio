@@ -23,5 +23,5 @@ interface CambioService {
         uuid: UUID?
     ): StateAndRef<PropostaState>
 
-    fun recuperarTransicoesDisponiveis()
+    fun recuperarTransicoesDisponiveis(uuid: UUID?): String
 }

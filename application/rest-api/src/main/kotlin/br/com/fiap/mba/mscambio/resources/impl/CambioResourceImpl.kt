@@ -68,6 +68,30 @@ open class CambioResourceImpl(
     override fun recuperarTransicoesDisponiveis(
         id: UUID?
     ): ResponseEntity<MutableList<TransicaoDisponivel>> {
-        return super.recuperarTransicoesDisponiveis(id)
+
+        val transicaoAtual = this.service.recuperarTransicoesDisponiveis(id)
+
+        val transicoesDisponiveis = arrayListOf<TransicaoDisponivel>()
+
+        if (
+            transicaoAtual == "ABERTO" ||
+            transicaoAtual == "CONTRA_PROPOSTA"
+        ) {
+
+            val transicaoAceitado = TransicaoDisponivel()
+            transicaoAceitado.transicao = TransicaoDisponivel.TransicaoEnum.ACEITADO
+
+            val transicaoContraProposta = TransicaoDisponivel()
+            transicaoContraProposta.transicao = TransicaoDisponivel.TransicaoEnum.CONTRA_PROPOSTA
+
+            val transicaoRejeitado = TransicaoDisponivel()
+            transicaoRejeitado.transicao = TransicaoDisponivel.TransicaoEnum.REJEITADO
+
+            transicoesDisponiveis.add(transicaoAceitado)
+            transicoesDisponiveis.add(transicaoContraProposta)
+            transicoesDisponiveis.add(transicaoRejeitado)
+        }
+
+        return ResponseEntity(transicoesDisponiveis.toMutableList(), HttpStatus.OK)
     }
 }
