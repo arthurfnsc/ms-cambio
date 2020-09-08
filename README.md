@@ -276,10 +276,8 @@ para isso, basta executar as seguintes tasks também presentes no
 arquivo **build.gradle**
 
 ```console
-foo@bar:ms-cambio$ [./gradlew | gradlew.bat] \
-application:rest-api:runBancoServer
-foo@bar:ms-cambio$ [./gradlew | gradlew.bat] \
-application:rest-api:runCorretoraServer
+foo@bar:ms-cambio$ [./gradlew | gradlew.bat] application:rest-api:runBancoServer
+foo@bar:ms-cambio$ [./gradlew | gradlew.bat] application:rest-api:runCorretoraServer
 ```
 
 Como o propósito do desafio foi realizar uma Prova de Conceito,  
