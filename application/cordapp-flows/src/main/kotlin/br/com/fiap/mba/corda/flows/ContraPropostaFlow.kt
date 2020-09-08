@@ -21,6 +21,7 @@ import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import java.math.BigDecimal
+import java.time.LocalDateTime
 import java.util.*
 
 object ContraPropostaFlow {
@@ -28,7 +29,7 @@ object ContraPropostaFlow {
     @StartableByRPC
     class Initiator(
         private val propostaId: UniqueIdentifier,
-        private val novaTaxa: BigDecimal
+        private val novaTaxa: BigDecimal?
     ) : FlowLogic<Unit>() {
         override val progressTracker = ProgressTracker()
 
@@ -42,11 +43,15 @@ object ContraPropostaFlow {
             // Creating the output.
             val counterparty = if (ourIdentity == input.proponente) input.oblato else input.proponente
 
-            val output = input.copy(
-                taxa = novaTaxa,
+            var output = input.copy(
                 proponente = ourIdentity,
-                oblato = counterparty
+                oblato = counterparty,
+                atualizadoEm = LocalDateTime.now()
             )
+
+            if (novaTaxa != null) {
+                output = output.copy(taxa = novaTaxa)
+            }
 
             // Creating the command.
             val requiredSigners = listOf(input.proponente.owningKey, input.oblato.owningKey)
@@ -63,15 +68,11 @@ object ContraPropostaFlow {
             val partStx = serviceHub.signInitialTransaction(txBuilder)
 
             // Gathering the counterparty's signature.
-            val sessions: List<FlowSession> = if (!serviceHub.myInfo.isLegalIdentity(counterparty))
-                Collections.singletonList(initiateFlow(counterparty))
-            else
-                Collections.emptyList()
-
-            val fullyStx = subFlow(CollectSignaturesFlow(partStx, sessions))
+            val counterpartySession = initiateFlow(counterparty)
+            val fullyStx = subFlow(CollectSignaturesFlow(partStx, listOf(counterpartySession)))
 
             // Finalising the transaction.
-            subFlow(FinalityFlow(fullyStx, sessions))
+            subFlow(FinalityFlow(fullyStx, listOf(counterpartySession)))
         }
     }
 

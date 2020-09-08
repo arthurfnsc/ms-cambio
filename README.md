@@ -16,16 +16,18 @@ O projeto utiliza o fluxo de versionamento [GitHub flow](https://guides.github.c
 Apesar de o Java já estar em uma versão a frente, o Corda possui uma 
 limitação sendo necessário utilizar a versão 8 para a execução do [CorDapp](https://docs.corda.net/docs/corda-os/4.5/getting-set-up.html)
 
-> Corda requires at least version 8u171, but do not currently support Java 9 or higher for this version of Corda.  
+> Corda requires at least version 8u171, but do not currently support Java 9  
+>or higher for this version of Corda.  
 >
 >Corda has been tested against the following Java builds:
-  
-    Oracle JDK
-    Amazon Corretto
-    Red Hat’s OpenJDK
-    Zulu’s OpenJDK
-  
-> OpenJDK builds often exclude JavaFX, which is required by the Corda GUI tools. Corda supports only Java 8.
+
+* Amazon Corretto
+* Oracle JDK
+* Red Hat’s OpenJDK
+* Zulu’s OpenJDK
+
+> OpenJDK builds often exclude JavaFX, which is required by the Corda GUI  
+>tools. Corda supports only Java 8.
 
 O Java 8 pode tanto ser instalado através da JDK contida no site 
 da [Oracle](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html) 
@@ -43,6 +45,7 @@ Para listagem de todas as versões do Java disponíveis, execute o comando:
 ```console
 foo@bar:~$ sdk list java
 ```
+
 </details>
 
 ### Gradle (opcional)
@@ -70,6 +73,7 @@ Para listagem de todas as versões do Gradle disponíveis, execute o comando:
 ```console
 foo@bar:~$ sdk list gradle
 ```
+
 </details>
 
 ## Estrutura

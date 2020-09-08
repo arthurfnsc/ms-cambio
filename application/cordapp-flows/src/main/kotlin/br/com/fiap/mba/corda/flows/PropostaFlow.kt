@@ -75,15 +75,11 @@ object PropostaFlow {
             val partStx = serviceHub.signInitialTransaction(txBuilder)
 
             // Gathering the counterparty's signature.
-            val sessions: List<FlowSession> = if (!serviceHub.myInfo.isLegalIdentity(instituicaoFinanceira))
-                Collections.singletonList(initiateFlow(instituicaoFinanceira))
-            else
-                Collections.emptyList()
-
-            val fullyStx = subFlow(CollectSignaturesFlow(partStx, sessions))
+            val counterpartySession = initiateFlow(instituicaoFinanceira)
+            val fullyStx = subFlow(CollectSignaturesFlow(partStx, listOf(counterpartySession)))
 
             // Finalising the transaction.
-            val finalisedTx = subFlow(FinalityFlow(fullyStx, sessions))
+            val finalisedTx = subFlow(FinalityFlow(fullyStx, listOf(counterpartySession)))
             return finalisedTx.tx.outputsOfType<PropostaState>().single().linearId
         }
     }

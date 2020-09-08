@@ -1,7 +1,7 @@
 package br.com.fiap.mba.corda.flows
 
 import br.com.fiap.mba.corda.contracts.NegociacaoContract
-import br.com.fiap.mba.corda.states.NegociacaoState
+import br.com.fiap.mba.corda.states.PropostaAceitaState
 import br.com.fiap.mba.corda.states.PropostaState
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.Command
@@ -21,7 +21,6 @@ import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
-import java.util.*
 
 object RecusaPropostaFlow {
     @InitiatingFlow
@@ -41,7 +40,7 @@ object RecusaPropostaFlow {
             val input = inputStateAndRef.state.data
 
             // Creating the output.
-            val output = NegociacaoState(
+            val output = PropostaAceitaState(
                 linearId = input.linearId,
                 comprador = input.comprador,
                 vendedor = input.vendedor,
@@ -64,16 +63,11 @@ object RecusaPropostaFlow {
 
             // Gathering the counterparty's signature.
             val counterparty = if (ourIdentity == input.proponente) input.oblato else input.proponente
-
-            val sessions: List<FlowSession> = if (!serviceHub.myInfo.isLegalIdentity(counterparty))
-                Collections.singletonList(initiateFlow(counterparty))
-            else
-                Collections.emptyList()
-
-            val fullyStx = subFlow(CollectSignaturesFlow(partStx, sessions))
+            val counterpartySession = initiateFlow(counterparty)
+            val fullyStx = subFlow(CollectSignaturesFlow(partStx, listOf(counterpartySession)))
 
             // Finalising the transaction.
-            subFlow(FinalityFlow(fullyStx, sessions))
+            subFlow(FinalityFlow(fullyStx, listOf(counterpartySession)))
         }
     }
 

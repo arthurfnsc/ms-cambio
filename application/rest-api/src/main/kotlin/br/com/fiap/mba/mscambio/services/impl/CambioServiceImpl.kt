@@ -4,7 +4,6 @@ import br.com.fiap.mba.corda.flows.AceitePropostaFlow
 import br.com.fiap.mba.corda.flows.ContraPropostaFlow
 import br.com.fiap.mba.corda.flows.PropostaFlow
 import br.com.fiap.mba.corda.flows.RecusaPropostaFlow
-import br.com.fiap.mba.corda.states.NegociacaoState
 import br.com.fiap.mba.corda.states.PropostaState
 import br.com.fiap.mba.mscambio.dtos.EnvioPropostaDTO
 import br.com.fiap.mba.mscambio.dtos.Transicao
@@ -26,7 +25,7 @@ import java.util.*
 
 @Service
 open class CambioServiceImpl(
-    private val rpc: NodeRPCConnection,
+    rpc: NodeRPCConnection,
     private val messageSource: MessageSource
 ) : CambioService {
 
@@ -44,7 +43,7 @@ open class CambioServiceImpl(
     override fun alterarStatusTransicao(
         uuid: UUID?,
         transicao: Transicao,
-        novaTaxa: Double
+        novaTaxa: Double?
     ) {
 
         try {
@@ -54,18 +53,18 @@ open class CambioServiceImpl(
                 Transicao.ACEITAR -> this.proxy.startTrackedFlow(
                     AceitePropostaFlow::Initiator,
                     UniqueIdentifier(id = uuid!!)
-                )
+                ).returnValue.getOrThrow()
 
                 Transicao.CONTRA_PROPOSTA -> this.proxy.startTrackedFlow(
                     ContraPropostaFlow::Initiator,
                     UniqueIdentifier(id = uuid!!),
-                    novaTaxa.toBigDecimal()
-                )
+                    novaTaxa?.toBigDecimal()
+                ).returnValue.getOrThrow()
 
                 Transicao.REJEITAR -> this.proxy.startTrackedFlow(
                     RecusaPropostaFlow::Initiator,
                     UniqueIdentifier(id = uuid!!)
-                )
+                ).returnValue.getOrThrow()
             }
 
         } catch (ex: Throwable) {
@@ -109,7 +108,7 @@ open class CambioServiceImpl(
 
             this.proxy.startTrackedFlow (
                 PropostaFlow::Initiator,
-                    remetente,
+                    this.proxy.wellKnownPartyFromX500Name(x500Name)!!,
                     propostaNegociacao.moeda,
                     propostaNegociacao.quantidade,
                     propostaNegociacao.cotacaoReal,
@@ -142,7 +141,7 @@ open class CambioServiceImpl(
             it.state.data.linearId == UniqueIdentifier(id = uuid)
         }
 
-        return filteredStates.first()
+        return filteredStates.last()
     }
 
     override fun recuperarTransicoesDisponiveis() {

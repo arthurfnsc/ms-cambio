@@ -12,7 +12,7 @@ interface CambioService {
     fun alterarStatusTransicao(
         uuid: UUID?,
         transicao: Transicao,
-        novaTaxa: Double
+        novaTaxa: Double?
     )
 
     fun enviarPropostaNegociacao(

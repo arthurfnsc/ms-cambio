@@ -146,7 +146,7 @@ components:
   schemas:
 
     AlterarTransicaoRequest:
-      description:
+      description: "Dados de alteração de transição"
       type: object
       properties:
         nova_transicao:

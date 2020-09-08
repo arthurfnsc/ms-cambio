@@ -9,12 +9,10 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 
 @BelongsToContract(NegociacaoContract::class)
-data class PropostaState(
+data class PropostaAceitaState(
     val statusNegociacao: String,
     val comprador: Party,
-    val proponente: Party,
     val vendedor: Party,
-    val oblato: Party,
     val moeda: String,
     val quantidade: Int,
     val cotacaoReal: BigDecimal,
@@ -22,8 +20,7 @@ data class PropostaState(
     val criadoEm: LocalDateTime = LocalDateTime.now(),
     val atualizadoEm: LocalDateTime = criadoEm,
     val aceitadoEm: LocalDateTime? = null,
-    val recusadoEm: LocalDateTime? = null,
     override val linearId: UniqueIdentifier = UniqueIdentifier()
 ) : LinearState {
-    override val participants = listOf(proponente, oblato)
+    override val participants = listOf(comprador, vendedor)
 }
