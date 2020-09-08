@@ -11,9 +11,9 @@ O projeto utiliza o fluxo de versionamento [GitHub flow](https://guides.github.c
 
 ### Java 8
 
-<details><summary><b>Instruções</b></summary>
+&lt;details&gt;&lt;summary&gt;&lt;b&gt;Instruções&lt;/b&gt;&lt;/summary&gt;
 
-Apesar de o Java já estar em uma versão a frente, o Corda possui uma 
+Apesar de o Java já estar em uma versão a frente, o Corda possui uma
 limitação sendo necessário utilizar a versão 8 para a execução do [CorDapp](https://docs.corda.net/docs/corda-os/4.5/getting-set-up.html)
 
 > Corda requires at least version 8u171, but do not currently support Java 9  
@@ -21,19 +21,19 @@ limitação sendo necessário utilizar a versão 8 para a execução do [CorDapp
 >
 >Corda has been tested against the following Java builds:
 
-* Amazon Corretto
-* Oracle JDK
-* Red Hat’s OpenJDK
-* Zulu’s OpenJDK
+- Amazon Corretto
+- Oracle JDK
+- Red Hat’s OpenJDK
+- Zulu’s OpenJDK
 
 > OpenJDK builds often exclude JavaFX, which is required by the Corda GUI  
 >tools. Corda supports only Java 8.
 
-O Java 8 pode tanto ser instalado através da JDK contida no site 
-da [Oracle](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html) 
- ou no site do [OpenJDK](https://openjdk.java.net/install/)
- 
-Como alternativa é possível utilizar o [SDKMan](https://sdkman.io/) 
+O Java 8 pode tanto ser instalado através da JDK contida no site
+da [Oracle](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html)
+ou no site do [OpenJDK](https://openjdk.java.net/install/)
+
+Como alternativa é possível utilizar o [SDKMan](https://sdkman.io/)
 e instalar o Java através do comando:
 
 ```console
@@ -46,22 +46,22 @@ Para listagem de todas as versões do Java disponíveis, execute o comando:
 foo@bar:~$ sdk list java
 ```
 
-</details>
+&lt;/details&gt;
 
 ### Gradle (opcional)
 
-<details><summary><b>Instruções</b></summary>
+&lt;details&gt;&lt;summary&gt;&lt;b&gt;Instruções&lt;/b&gt;&lt;/summary&gt;
 
-O projeto foi concebido para que a instalação do Gradle fosse opcional, 
-para tanto, é possível rodar as configurações do projeto após instalação 
+O projeto foi concebido para que a instalação do Gradle fosse opcional,
+para tanto, é possível rodar as configurações do projeto após instalação
 do Java pelos arquivos **gradle.bat** em sistemas Windows e **gradlew**
- em sistemas Unix, que interagem com o arquivo **gradle-wrapper.jar** 
- contido na pasta **gradle** na raiz do projeto.
+ em sistemas Unix, que interagem com o arquivo **gradle-wrapper.jar**
+ contido na pasta **gradle/wrapper** na raiz do projeto.
 
-Caso mesmo assim se deseje rodar o projeto pelo Gradle na máquina, 
+Caso mesmo assim se deseje rodar o projeto pelo Gradle na máquina,
 o mesmo pode ser instalado através do [site](https://gradle.org/install/).
 
-Como alternativa é possível utilizar o [SDKMan](https://sdkman.io/) 
+Como alternativa é possível utilizar o [SDKMan](https://sdkman.io/)
 e instalar o Maven através do comando:
 
 ```console
@@ -74,7 +74,7 @@ Para listagem de todas as versões do Gradle disponíveis, execute o comando:
 foo@bar:~$ sdk list gradle
 ```
 
-</details>
+&lt;/details&gt;
 
 ## Estrutura
 
@@ -102,15 +102,15 @@ foo@bar:~$ cd ms-cambio
 
 ### Execução Linux | Windows
 
-O projeto pode ser executado em ambiente Linux ou Windows, sendo os comandos  
-diferenciando por duas opções [Linux | Windows] respectivamente
+O projeto pode ser executado em ambiente Linux ou Windows, sendo os comandos
+diferenciando por duas opções Linux e Windows respectivamente
 
 Primeiramente é preciso gerar os nodes do Corda e subí-los. Essas  
 configurações se encontram no arquivo **build.gradle**
 dentro da task **deployNodes**
 
 ```console
-foo@bar:ms-cambio$ [./gradlew | gradlew.bat] clean deployNodes 
+foo@bar:ms-cambio$ [./gradlew | gradlew.bat] clean deployNodes
 foo@bar:ms-cambio$ [./build/nodes/runnodes | .\build\nodes\runnodes.bat]
 ```
 
@@ -119,8 +119,10 @@ para isso, basta executar as seguintes tasks também presentes no
 arquivo **build.gradle**
 
 ```console
-foo@bar:ms-cambio$ [./gradlew | gradlew.bat] application:rest-api:runBancoServer
-foo@bar:ms-cambio$ [./gradlew | gradlew.bat] application:rest-api:runCorretoraServer
+foo@bar:ms-cambio$ [./gradlew | gradlew.bat] \
+application:rest-api:runBancoServer
+foo@bar:ms-cambio$ [./gradlew | gradlew.bat] \
+application:rest-api:runCorretoraServer
 ```
 
 Como o propósito do desafio foi realizar uma Prova de Conceito,  
@@ -128,9 +130,10 @@ alguns conteúdos mais avançados de segurança não foram explorados,
 para tanto, serão executadas as soluções como se estivessem em servidores  
 Web distintos, porém, as duas apontam para o mesmo ambiente **Corda**:
 
-Em http://localhost:50001/mscambio/swagger-ui/ estará a solução apontando  
-para o usuário do **Banco** e em http://localhost:50002/mscambio/swagger-ui/  
-a solução apontando para para o usuário da **Corretora**
+Em [localhost:50001](http://localhost:50001/mscambio/swagger-ui/) estará a
+solução apontando para o usuário do **Banco** e em
+[localhost:50002](http://localhost:50002/mscambio/swagger-ui/) a solução
+apontando para para o usuário da **Corretora**
 
 ## Qualidade de Código
 
@@ -177,13 +180,13 @@ foo@bar:ms-cambio$ [./gradlew | gradlew.bat] dependencyCheckAggregate
 
 ### Erros ao importar projeto em IDE
 
-É comum ao importar o projeto em uma IDE que classes contidas nos 
+É comum ao importar o projeto em uma IDE que classes contidas nos
 pacotes **org.openapi.cambio.server** apresentem erros de compilação.
 
-Isso ocorre porque ao utilizar a estratégia de API First é necessário 
+Isso ocorre porque ao utilizar a estratégia de API First é necessário
 a geração das classes para que o projeto possa compilar.
 
-A geração das classes se encontra atrelada ao goal **compileKotlin** no 
+A geração das classes se encontra atrelada ao goal **compileKotlin** no
 ciclo de vida do **Gradle**, e pode ser melhor detalhado em  
 **"plugins/openapi.gradle** na raiz do projeto.
 
@@ -203,7 +206,7 @@ Uma das formas de resolver o problema é a execução da task **compileKotlin**
 foo@bar:ms-cambio$ [./gradlew | gradlew.bat] compileKotlin
 ```
 
-Ou a execução de outras tasks que tenham relação direta com o **compileKotlin**, 
+Ou a execução de outras tasks que tenham relação direta com o **compileKotlin**,
 como **build** ou **bootRun**.
 
 As classes geradas se encontrarão no diretório **org.openapi.cambio.server**:
@@ -226,7 +229,7 @@ As classes geradas se encontrarão no diretório **org.openapi.cambio.server**:
                                         └── model
 ```
 
-Mesmo após a geração de classes, é comum algumas IDEs ainda não sincronizarem 
-as novas classes no projeto aberto, para tanto, lembre-se de sincronizar o projeto 
-para que as novas classes entrem no classpath do projeto, e com isso, possam ser 
-importadas por outras classes.
+Mesmo após a geração de classes, é comum algumas IDEs ainda não sincronizarem
+as novas classes no projeto aberto, para tanto, lembre-se de sincronizar o  
+projeto para que as novas classes entrem no classpath do projeto, e com isso,  
+possam ser importadas por outras classes.
