@@ -2,6 +2,7 @@ package br.com.fiap.mba.mscambio.resources
 
 import br.com.fiap.mba.mscambio.exceptions.DestinatarioException
 import br.com.fiap.mba.mscambio.exceptions.InstituicaoFinanceiraException
+import br.com.fiap.mba.mscambio.exceptions.PropostaInvalidaException
 import br.com.fiap.mba.mscambio.exceptions.RemetenteException
 import br.com.fiap.mba.mscambio.factories.ErroFactory
 import net.corda.core.CordaException
@@ -21,6 +22,7 @@ class GlobalControllerExceptionHandler : ResponseEntityExceptionHandler() {
         private const val DESTINATARIO_INVALIDO = "Destinatário inválido!"
         private const val INSTITUICAO_FINANCEIRA_INVALIDA = "Instituição Financeira inválida!"
         private const val REMETENTE_INVALIDO = "Remetente inválido!"
+        private const val ID_PROPOSTA_INVALIDO = "Identificador de proposta inválido!"
     }
 
     @ExceptionHandler(CordaException::class)
@@ -61,6 +63,23 @@ class GlobalControllerExceptionHandler : ResponseEntityExceptionHandler() {
         return ErroFactory.criar(
             HttpStatus.BAD_REQUEST,
             INSTITUICAO_FINANCEIRA_INVALIDA,
+            listOf(
+                parametroInvalido
+            )
+        )
+    }
+
+    @ExceptionHandler(PropostaInvalidaException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun propostaInvalida(ex: PropostaInvalidaException): Erro {
+
+        val parametroInvalido = ParametroInvalido()
+        parametroInvalido.nome = "id"
+        parametroInvalido.descricao = ex.message
+
+        return ErroFactory.criar(
+            HttpStatus.NOT_FOUND,
+            ID_PROPOSTA_INVALIDO,
             listOf(
                 parametroInvalido
             )

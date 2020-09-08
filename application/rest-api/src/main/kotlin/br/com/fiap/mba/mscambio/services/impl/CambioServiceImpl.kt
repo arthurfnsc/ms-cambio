@@ -9,6 +9,7 @@ import br.com.fiap.mba.mscambio.dtos.EnvioPropostaDTO
 import br.com.fiap.mba.mscambio.dtos.Transicao
 import br.com.fiap.mba.mscambio.exceptions.DestinatarioException
 import br.com.fiap.mba.mscambio.exceptions.InstituicaoFinanceiraException
+import br.com.fiap.mba.mscambio.exceptions.PropostaInvalidaException
 import br.com.fiap.mba.mscambio.exceptions.RemetenteException
 import br.com.fiap.mba.mscambio.gateways.NodeRPCConnection
 import br.com.fiap.mba.mscambio.resources.impl.CambioResourceImpl
@@ -22,6 +23,7 @@ import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.Vault
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.utilities.getOrThrow
+import org.openapi.cambio.server.model.TransicaoDisponivel
 import org.springframework.context.MessageSource
 import org.springframework.stereotype.Service
 import java.util.*
@@ -135,7 +137,7 @@ open class CambioServiceImpl(
 
             val mensagem = this.messageSource.getMessage(I18N_ID_INVALIDO, null, Locale("pt", "BR"))
 
-            throw RemetenteException(mensagem)
+            throw PropostaInvalidaException(mensagem)
         }
 
         val criteria = QueryCriteria.VaultQueryCriteria(status = Vault.StateStatus.ALL)
@@ -149,7 +151,25 @@ open class CambioServiceImpl(
         return filteredStates.last()
     }
 
-    override fun recuperarTransicoesDisponiveis() {
-        TODO("Not yet implemented")
+    override fun recuperarTransicoesDisponiveis(uuid: UUID?): String {
+
+        requireNotNull(uuid) {
+
+            val mensagem = this.messageSource.getMessage(I18N_ID_INVALIDO, null, Locale("pt", "BR"))
+
+            throw PropostaInvalidaException(mensagem)
+        }
+
+        val criteria = QueryCriteria.VaultQueryCriteria(status = Vault.StateStatus.ALL)
+
+        val statesProposta = this.proxy.vaultQueryBy<PropostaState>(criteria).states
+
+        val filteredStates = statesProposta.filter {
+            it.state.data.linearId == UniqueIdentifier(id = uuid)
+        }
+
+        val propostaState = filteredStates.last().state.data
+
+        return propostaState.statusTransacao
     }
 }
