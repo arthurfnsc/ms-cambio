@@ -12,7 +12,7 @@ import org.openapi.cambio.server.model.TransicaoDisponivel
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
-import java.util.*
+import java.util.UUID
 
 @RestController
 open class CambioResourceImpl(
@@ -20,11 +20,6 @@ open class CambioResourceImpl(
     private val transicaoDisponivelConverter: TransicaoDisponivelConverter,
     private val service: CambioService
 ) : V1Api {
-
-    companion object {
-
-        const val I18N_INSTITUICAO_INVALIDA = "instituicao.invalida"
-    }
 
     override fun alterarStatusTransicao(
         id: UUID?,
