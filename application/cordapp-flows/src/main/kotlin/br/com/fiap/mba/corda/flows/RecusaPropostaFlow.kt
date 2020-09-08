@@ -1,7 +1,6 @@
 package br.com.fiap.mba.corda.flows
 
 import br.com.fiap.mba.corda.contracts.NegociacaoContract
-import br.com.fiap.mba.corda.states.PropostaAceitaState
 import br.com.fiap.mba.corda.states.PropostaState
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.Command
@@ -21,6 +20,7 @@ import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
+import java.time.LocalDateTime
 
 object RecusaPropostaFlow {
     @InitiatingFlow
@@ -40,19 +40,24 @@ object RecusaPropostaFlow {
             val input = inputStateAndRef.state.data
 
             // Creating the output.
-            val output = PropostaAceitaState(
-                linearId = input.linearId,
-                comprador = input.comprador,
-                vendedor = input.vendedor,
-                taxa = input.taxa
+            val counterparty = if (ourIdentity == input.proponente) input.oblato else input.proponente
+
+            // Creating the output.
+            var output = input.copy(
+                proponente = ourIdentity,
+                oblato = counterparty,
+                atualizadoEm = LocalDateTime.now(),
+                statusTransacao = "REJEITADO"
             )
 
             // Creating the command.
             val requiredSigners = listOf(input.proponente.owningKey, input.oblato.owningKey)
             val command = Command(NegociacaoContract.Commands.Recusar(), requiredSigners)
 
-            // Building the transaction.
+            // Obtain a reference from a notary we wish to use.
             val notary = inputStateAndRef.state.notary
+
+            // Building the transaction.
             val txBuilder = TransactionBuilder(notary)
             txBuilder.addInputState(inputStateAndRef)
             NegociacaoContract.ID?.let { txBuilder.addOutputState(output, it) }
@@ -62,7 +67,6 @@ object RecusaPropostaFlow {
             val partStx = serviceHub.signInitialTransaction(txBuilder)
 
             // Gathering the counterparty's signature.
-            val counterparty = if (ourIdentity == input.proponente) input.oblato else input.proponente
             val counterpartySession = initiateFlow(counterparty)
             val fullyStx = subFlow(CollectSignaturesFlow(partStx, listOf(counterpartySession)))
 

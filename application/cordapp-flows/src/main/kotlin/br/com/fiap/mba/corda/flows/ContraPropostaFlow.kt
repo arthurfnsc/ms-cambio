@@ -22,7 +22,6 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import java.math.BigDecimal
 import java.time.LocalDateTime
-import java.util.*
 
 object ContraPropostaFlow {
     @InitiatingFlow
@@ -35,6 +34,7 @@ object ContraPropostaFlow {
 
         @Suspendable
         override fun call() {
+
             // Retrieving the input from the vault.
             val inputCriteria = QueryCriteria.LinearStateQueryCriteria(linearId = listOf(propostaId))
             val inputStateAndRef = serviceHub.vaultService.queryBy<PropostaState>(inputCriteria).states.single()
@@ -46,7 +46,8 @@ object ContraPropostaFlow {
             var output = input.copy(
                 proponente = ourIdentity,
                 oblato = counterparty,
-                atualizadoEm = LocalDateTime.now()
+                atualizadoEm = LocalDateTime.now(),
+                statusTransacao = "CONTRA_PROPOSTA"
             )
 
             if (novaTaxa != null) {
@@ -57,8 +58,10 @@ object ContraPropostaFlow {
             val requiredSigners = listOf(input.proponente.owningKey, input.oblato.owningKey)
             val command = Command(NegociacaoContract.Commands.ContraProposta(), requiredSigners)
 
-            // Building the transaction.
+            // Obtain a reference from a notary we wish to use.
             val notary = inputStateAndRef.state.notary
+
+            // Building the transaction.
             val txBuilder = TransactionBuilder(notary)
             txBuilder.addInputState(inputStateAndRef)
             NegociacaoContract.ID?.let { txBuilder.addOutputState(output, it) }

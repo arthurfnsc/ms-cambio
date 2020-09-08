@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 
 @BelongsToContract(NegociacaoContract::class)
 data class PropostaState(
-    val statusNegociacao: String,
+    val statusTransacao: String,
     val comprador: Party,
     val proponente: Party,
     val vendedor: Party,
@@ -21,8 +21,6 @@ data class PropostaState(
     val taxa: BigDecimal,
     val criadoEm: LocalDateTime = LocalDateTime.now(),
     val atualizadoEm: LocalDateTime = criadoEm,
-    val aceitadoEm: LocalDateTime? = null,
-    val recusadoEm: LocalDateTime? = null,
     override val linearId: UniqueIdentifier = UniqueIdentifier()
 ) : LinearState {
     override val participants = listOf(proponente, oblato)

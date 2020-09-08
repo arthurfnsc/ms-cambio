@@ -196,9 +196,9 @@ components:
           description: "Nome de transição disponível"
           type: string
           enum:
-            - "Aceitar"
+            - "Aceitado"
             - "Contra-Proposta"
-            - "Rejeitar"
+            - "Rejeitado"
       additionalProperties: false
 
     TransicoesDisponiveisArray:
@@ -239,10 +239,10 @@ components:
           description: "Status de transação"
           type: string
           enum:
-            - "Aberta"
-            - "Aceita"
+            - "Aberto"
+            - "Aceitado"
             - "Contra-Proposta"
-            - "Rejeitada"
+            - "Rejeitado"
         criado_em:
           description: "Data de criação de registro"
           type: string

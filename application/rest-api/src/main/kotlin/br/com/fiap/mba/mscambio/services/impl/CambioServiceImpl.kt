@@ -50,7 +50,7 @@ open class CambioServiceImpl(
 
             when(transicao) {
 
-                Transicao.ACEITAR -> this.proxy.startTrackedFlow(
+                Transicao.ACEITADO -> this.proxy.startTrackedFlow(
                     AceitePropostaFlow::Initiator,
                     UniqueIdentifier(id = uuid!!)
                 ).returnValue.getOrThrow()
@@ -61,7 +61,7 @@ open class CambioServiceImpl(
                     novaTaxa?.toBigDecimal()
                 ).returnValue.getOrThrow()
 
-                Transicao.REJEITAR -> this.proxy.startTrackedFlow(
+                Transicao.REJEITADO -> this.proxy.startTrackedFlow(
                     RecusaPropostaFlow::Initiator,
                     UniqueIdentifier(id = uuid!!)
                 ).returnValue.getOrThrow()

@@ -1,7 +1,7 @@
 package br.com.fiap.mba.mscambio.dtos
 
 enum class Transicao {
-    ACEITAR,
+    ACEITADO,
     CONTRA_PROPOSTA,
-    REJEITAR
+    REJEITADO
 }
