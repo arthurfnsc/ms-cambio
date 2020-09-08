@@ -11,7 +11,7 @@ O projeto utiliza o fluxo de versionamento [GitHub flow](https://guides.github.c
 
 ### Java 8
 
-&lt;details&gt;&lt;summary&gt;&lt;b&gt;Instruções&lt;/b&gt;&lt;/summary&gt;
+<details><summary><b>Instruções</b></summary>
 
 Apesar de o Java já estar em uma versão a frente, o Corda possui uma
 limitação sendo necessário utilizar a versão 8 para a execução do [CorDapp](https://docs.corda.net/docs/corda-os/4.5/getting-set-up.html)
@@ -46,11 +46,11 @@ Para listagem de todas as versões do Java disponíveis, execute o comando:
 foo@bar:~$ sdk list java
 ```
 
-&lt;/details&gt;
+</details>
 
 ### Gradle (opcional)
 
-&lt;details&gt;&lt;summary&gt;&lt;b&gt;Instruções&lt;/b&gt;&lt;/summary&gt;
+<details><summary><b>Instruções</b></summary>
 
 O projeto foi concebido para que a instalação do Gradle fosse opcional,
 para tanto, é possível rodar as configurações do projeto após instalação
@@ -74,7 +74,7 @@ Para listagem de todas as versões do Gradle disponíveis, execute o comando:
 foo@bar:~$ sdk list gradle
 ```
 
-&lt;/details&gt;
+</details>
 
 ## Estrutura
 
