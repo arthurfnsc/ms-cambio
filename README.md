@@ -78,9 +78,166 @@ foo@bar:~$ sdk list gradle
 
 ## Estrutura
 
-```console
+<details><summary><b>Projeto principal</b></summary>
 
+```console
+.
+├── application
+│   ├── cordapp-contracts-states
+│   ├── cordapp-flows
+│   └── rest-api
+├── build
+│   ├── dokka
+│   ├── nodes
+│   │   ├── Banco
+│   │   ├── Banco_node.conf
+│   │   ├── Corretora
+│   │   ├── Corretora_node.conf
+│   │   ├── Notary
+│   │   ├── Notary_node.conf
+│   │   ├── runnodes
+│   │   ├── runnodes.bat
+│   │   └── runnodes.jar
+│   └── reports
+│       ├── dependencyCheck
+│       ├── docs
+│       │   └── dependencyUpdates
+│       ├── markdownlint
+│       ├── ossindex
+│       └── project
+│           └── dependencies
+├── build.gradle
+├── gradle
+│   └── wrapper
+│       ├── gradle-wrapper.jar
+│       └── gradle-wrapper.properties
+├── gradlew
+├── gradlew.bat
+├── plugins
+│   ├── configs
+│   │   └── detekt
+│   │       └── config.yml
+│   ├── docs.gradle
+│   ├── ides.gradle
+│   ├── jacoco.gradle
+│   ├── kotlin.gradle
+│   ├── lint.gradle
+│   ├── security.gradle
+│   └── sonarqube.gradle
+├── README.md
+└── settings.gradle
 ```
+
+</details>
+
+<details><summary><b>application/cordapp-contracts-states</b></summary>
+
+```console
+.
+├── build
+│   ├── dokka
+│   └── reports
+│       ├── detekt
+│       ├── docs
+│       │   └── dependencyUpdates
+│       └── project
+│           └── dependencies
+├── build.gradle
+└── src
+    └── main
+        └── kotlin
+            └── br
+                └── com
+                    └── fiap
+                        └── mba
+                            └── corda
+                                ├── contracts
+                                └── states
+```
+
+</details>
+
+<details><summary><b>application/cordapp-flows</b></summary>
+
+```console
+.
+├── build
+│   ├── dokka
+│   └── reports
+│       ├── detekt
+│       ├── docs
+│       │   └── dependencyUpdates
+│       └── project
+├── build.gradle
+└── src
+    └── main
+        └── kotlin
+            └── br
+                └── com
+                    └── fiap
+                        └── mba
+                            └── corda
+                                └── flows
+```
+
+</details>
+
+<details><summary><b>application/rest-api</b></summary>
+
+```console
+.
+├── build
+│   ├── dokka
+│   ├── generated
+│   │   └── openapi-code-server
+│   │       └── src
+│   │           └── main
+│   │               └── java
+│   │                   └── org
+│   │                       └── openapi
+│   │                           └── cambio
+│   │                               └── server
+│   │                                   ├── api
+│   │                                   └── model
+│   └── reports
+│       ├── detekt
+│       ├── docs
+│       │   └── dependencyUpdates
+│       └── project
+│           └── dependencies
+├── build.gradle
+├── plugins
+│   ├── mapstruct.gradle
+│   └── openapi.gradle
+└── src
+    └── main
+        ├── kotlin
+        │   └── br
+        │       └── com
+        │           └── fiap
+        │               └── mba
+        │                   └── mscambio
+        │                       ├── configs
+        │                       ├── converters
+        │                       ├── dtos
+        │                       ├── exceptions
+        │                       ├── factories
+        │                       ├── gateways
+        │                       ├── MsCambioApplication.kt
+        │                       ├── resources
+        │                       │   └── impl
+        │                       └── services
+        │                           └── impl
+        └── resources
+            ├── application-dev.yaml
+            ├── application.yaml
+            ├── i18n
+            │   └── messages_pt.properties
+            └── openapi
+                └── cambio-api.yaml
+```
+
+</details>
 
 ## Arquitetura
 
@@ -119,10 +276,8 @@ para isso, basta executar as seguintes tasks também presentes no
 arquivo **build.gradle**
 
 ```console
-foo@bar:ms-cambio$ [./gradlew | gradlew.bat] \
-application:rest-api:runBancoServer
-foo@bar:ms-cambio$ [./gradlew | gradlew.bat] \
-application:rest-api:runCorretoraServer
+foo@bar:ms-cambio$ [./gradlew | gradlew.bat] application:rest-api:runBancoServer
+foo@bar:ms-cambio$ [./gradlew | gradlew.bat] application:rest-api:runCorretoraServer
 ```
 
 Como o propósito do desafio foi realizar uma Prova de Conceito,  
