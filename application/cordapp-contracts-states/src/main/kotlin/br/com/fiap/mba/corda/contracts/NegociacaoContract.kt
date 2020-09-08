@@ -14,6 +14,7 @@ class NegociacaoContract : Contract {
         val ID = NegociacaoContract::class.qualifiedName
     }
 
+    @SuppressWarnings("LongMethod")
     override fun verify(tx: LedgerTransaction) {
         val cmd = tx.commands.requireSingleCommand<Commands>()
 
@@ -64,7 +65,9 @@ class NegociacaoContract : Contract {
                 "There is no timestamp" using (tx.timeWindow == null)
 
                 val output = tx.outputsOfType<PropostaState>().single()
-                "The comprador and vendedor are the proponente and the oblito" using (setOf(output.comprador, output.vendedor) == setOf(output.proponente, output.oblato))
+                "The comprador and vendedor are the proponente and the oblito" using(
+                    setOf(output.comprador, output.vendedor) == setOf(output.proponente, output.oblato)
+                )
 
                 "The proponente is a required signer" using (cmd.signers.contains(output.proponente.owningKey))
                 "The oblito is a required signer" using (cmd.signers.contains(output.oblato.owningKey))

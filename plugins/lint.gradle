@@ -4,6 +4,7 @@ apply plugin: "io.gitlab.arturbosch.detekt"
 detekt {
     failFast = true
     // https://arturbosch.github.io/detekt/changelog.html
+    // https://arturbosch.github.io/detekt/configurations.html
     config = files("$rootDir/plugins/configs/detekt/config.yml")
     input = files("$projectDir/src/main/kotlin")
 

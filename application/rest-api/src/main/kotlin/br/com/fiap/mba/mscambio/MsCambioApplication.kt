@@ -12,6 +12,7 @@ import kotlin.system.exitProcess
 @SpringBootApplication
 open class MsCambioApplication
 
+@Suppress("SpreadOperator")
 fun validateProfile(args: Array<String>) {
 
     val source = SimpleCommandLinePropertySource(*args)
@@ -32,6 +33,6 @@ fun main(args: Array<String>) {
 
     val app = SpringApplication(MsCambioApplication::class.java)
     app.setBannerMode(Banner.Mode.OFF)
-    app.webApplicationType = WebApplicationType.SERVLET;
+    app.webApplicationType = WebApplicationType.SERVLET
     app.run(*args)
 }

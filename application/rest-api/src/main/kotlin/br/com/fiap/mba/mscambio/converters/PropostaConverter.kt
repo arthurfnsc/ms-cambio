@@ -27,7 +27,7 @@ interface PropostaConverter {
             target = "taxa"
         )
     )
-    fun from(element: PropostaNegociacaoRequest) : EnvioPropostaDTO
+    fun from(element: PropostaNegociacaoRequest): EnvioPropostaDTO
 
     @Mappings(
         Mapping(
@@ -51,5 +51,5 @@ interface PropostaConverter {
             target = "taxaPretendida"
         )
     )
-    fun from(element: PropostaState) : PropostaNegociacao
+    fun from(element: PropostaState): PropostaNegociacao
 }
