@@ -134,6 +134,25 @@ wrapper {
     gradleVersion = "$gradleWrapperVersion"
 }
 
+cordapp {
+
+    targetPlatformVersion 7
+    minimumPlatformVersion 7
+
+    contract {
+        name "Cambio Contracts"
+        vendor "Nameless"
+        licence "A liberal, open source licence"
+        versionId 1
+    }
+    workflow {
+        name "Cambio Flows"
+        vendor "Nameless"
+        licence "A liberal, open source licence"
+        versionId 1
+    }
+}
+
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
 
     if (JavaVersion.current() != JavaVersion.VERSION_1_8) {
