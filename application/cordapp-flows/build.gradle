@@ -10,3 +10,16 @@ dependencies {
 
     cordaRuntime "$cordaGroup:corda:$cordaVersion"
 }
+
+cordapp {
+
+    targetPlatformVersion 7
+    minimumPlatformVersion 7
+
+    workflow {
+        name "Cambio Flows"
+        vendor "Nameless"
+        licence "A liberal, open source licence"
+        versionId 1
+    }
+}
