@@ -364,7 +364,8 @@ foo@bar:ms-cambio$ [./gradlew | gradlew.bat] compileKotlin
 Ou a execução de outras tasks que tenham relação direta com o **compileKotlin**,
 como **build** ou **bootRun**.
 
-As classes geradas se encontrarão no diretório **org.openapi.cambio.server**:
+As classes geradas se encontrarão no diretório **org.openapi.cambio.server**
+dentro do projeto **application/rest-api**
 
 ```console
 .
