@@ -56,6 +56,10 @@ object PropostaFlow {
                 "O comprador e o vendedor devem ser diferentes!"
             }
 
+            require(quantidade > 0) {
+                "A quantidade deve ser maior que zero!"
+            }
+
             // Creating the command.
             val commandType = NegociacaoContract.Commands.Proposta()
             val requiredSigners = listOf(ourIdentity.owningKey, instituicaoFinanceira.owningKey)

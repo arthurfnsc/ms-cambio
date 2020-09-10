@@ -2,12 +2,10 @@ package br.com.fiap.mba.corda.flows
 
 import br.com.fiap.mba.corda.states.PropostaState
 import groovy.util.GroovyTestCase.assertEquals
-import net.corda.core.internal.rootMessage
 import net.corda.core.node.services.queryBy
 import net.corda.testing.internal.chooseIdentity
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.assertThrows
-import java.lang.IllegalArgumentException
 import java.math.BigDecimal
 import java.util.concurrent.ExecutionException
 
@@ -18,8 +16,10 @@ class PropostaFlowShould: FlowTestsBase() {
         private val VALOR_COTACAO_REAL_VALIDO = BigDecimal.ONE
         private val VALOR_TAXA_VALIDO = BigDecimal.TEN
 
-        private const val VALOR_QUANTIDADE_VALIDO = 2
         private const val MOEDA_VALIDA = "USD"
+        private const val VALOR_QUANTIDADE_VALIDO = 2
+        private const val VALOR_NEGATIVO = -1
+        private const val VALOR_ZERO = 0
     }
 
     @Test
@@ -77,5 +77,43 @@ class PropostaFlowShould: FlowTestsBase() {
         }
 
         assertEquals("O comprador e o vendedor devem ser diferentes!", exception.cause!!.message)
+    }
+
+    @Test
+    fun `not accept transactions with zero quantidade`() {
+
+        val nodeB = this.b.info.chooseIdentity()
+
+        val exception = assertThrows(ExecutionException::class.java) {
+
+            this.nodeACriarProposta(
+                instituicaoFinanceira = nodeB,
+                moeda = MOEDA_VALIDA,
+                quantidade = VALOR_ZERO,
+                cotacaoReal = VALOR_COTACAO_REAL_VALIDO,
+                taxa = VALOR_TAXA_VALIDO
+            )
+        }
+
+        assertEquals("A quantidade deve ser maior que zero!", exception.cause!!.message)
+    }
+
+    @Test
+    fun `not accept transactions with negative quantidade`() {
+
+        val nodeB = this.b.info.chooseIdentity()
+
+        val exception = assertThrows(ExecutionException::class.java) {
+
+            this.nodeACriarProposta(
+                instituicaoFinanceira = nodeB,
+                moeda = MOEDA_VALIDA,
+                quantidade = VALOR_NEGATIVO,
+                cotacaoReal = VALOR_COTACAO_REAL_VALIDO,
+                taxa = VALOR_TAXA_VALIDO
+            )
+        }
+
+        assertEquals("A quantidade deve ser maior que zero!", exception.cause!!.message)
     }
 }
