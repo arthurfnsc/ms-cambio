@@ -120,7 +120,7 @@ class PropostaContractTest {
     }
 
     @Test
-    fun `deve possuir 2 assinadores obigatórios - proponente e oblato`() {
+    fun `deve possuir 2 assinadores obigatórios - proponente e oblito`() {
         ledgerServices.ledger {
             transaction {
                 NegociacaoContract.ID?.let { output(it, propostaState) }
@@ -139,7 +139,7 @@ class PropostaContractTest {
     }
 
     @Test
-    fun `deve validar transações em que comprador e vendedor são proponente e oblato respectivamente`() {
+    fun `deve validar transações em que comprador e vendedor são proponente e oblito respectivamente`() {
         ledgerServices.ledger {
             transaction {
                 command(listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.Proposta())

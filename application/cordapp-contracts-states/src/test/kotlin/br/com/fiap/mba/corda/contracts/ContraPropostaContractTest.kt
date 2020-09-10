@@ -2,12 +2,14 @@ package br.com.fiap.mba.corda.contracts
 
 import br.com.fiap.mba.corda.contracts.NegociacaoContract.Companion.ASSINATURA_OBLITO_OBRIGATORIA
 import br.com.fiap.mba.corda.contracts.NegociacaoContract.Companion.ASSINATURA_PROPONENTE_OBRIGATORIA
+import br.com.fiap.mba.corda.contracts.NegociacaoContract.Companion.COMPRADOR_NAO_MODIFICADO
 import br.com.fiap.mba.corda.contracts.NegociacaoContract.Companion.NENHUM_TIMESTAMP
-import br.com.fiap.mba.corda.contracts.NegociacaoContract.Companion.TAXA_NAO_MODIFICADA
 import br.com.fiap.mba.corda.contracts.NegociacaoContract.Companion.UNICO_INPUT
 import br.com.fiap.mba.corda.contracts.NegociacaoContract.Companion.UNICO_OUTPUT
+import br.com.fiap.mba.corda.contracts.NegociacaoContract.Companion.VENDEDOR_NAO_MODIFICADO
 import br.com.fiap.mba.corda.states.PropostaState
 import net.corda.core.identity.CordaX500Name
+import net.corda.testing.contracts.DummyState
 import net.corda.testing.core.DummyCommandData
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.node.MockServices
@@ -16,9 +18,10 @@ import org.junit.Test
 import java.math.BigDecimal
 import java.time.Instant
 
-class AceitePropostaContractTest {
+class ContraPropostaContractTest {
 
     private companion object {
+
         private const val COMANDO_VALIDO = "Required br.com.fiap.mba.corda.contracts.NegociacaoContract.Commands command"
     }
 
@@ -31,7 +34,7 @@ class AceitePropostaContractTest {
     private val charlie = TestIdentity(CordaX500Name("charlie", "London", "GB"))
 
     private val propostaState1 = PropostaState(
-        statusTransacao = "ACEITADO",
+        statusTransacao = "CONTRA-PROPOSTA",
         comprador = alice.party,
         proponente = alice.party,
         vendedor = bob.party,
@@ -43,7 +46,7 @@ class AceitePropostaContractTest {
     )
 
     private val propostaState2 = PropostaState(
-        statusTransacao = "ACEITADO",
+        statusTransacao = "CONTRA-PROPOSTA",
         comprador = alice.party,
         proponente = alice.party,
         vendedor = bob.party,
@@ -55,7 +58,7 @@ class AceitePropostaContractTest {
     )
 
     private val propostaStateInvalida1 = PropostaState(
-        statusTransacao = "ACEITADO",
+        statusTransacao = "CONTRA-PROPOSTA",
         comprador = alice.party,
         proponente = alice.party,
         vendedor = charlie.party,
@@ -67,7 +70,7 @@ class AceitePropostaContractTest {
     )
 
     private val propostaStateInvalida2 = PropostaState(
-        statusTransacao = "ACEITADO",
+        statusTransacao = "CONTRA-PROPOSTA",
         comprador = charlie.party,
         proponente = charlie.party,
         vendedor = bob.party,
@@ -79,7 +82,7 @@ class AceitePropostaContractTest {
     )
 
     private val propostaStateInvalida3 = PropostaState(
-        statusTransacao = "ACEITADO",
+        statusTransacao = "CONTRA-PROPOSTA",
         comprador = bob.party,
         proponente = bob.party,
         vendedor = bob.party,
@@ -91,82 +94,115 @@ class AceitePropostaContractTest {
     )
 
     @Test
-    fun `deve aceitar propostas que tenham apenas um estado de input e um estado de output`() {
+    fun `deve validar se modificações de transações possuem apenas um input e output`() {
         ledgerServices.ledger{
             transaction {
-                command(
-                    listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.Aceitar())
+                command(listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.ContraProposta())
                 tweak {
                     NegociacaoContract.ID?.let { input(it, propostaState1) }
                     NegociacaoContract.ID?.let { input(it, propostaState1) }
                     failsWith(UNICO_INPUT)
                 }
                 tweak {
-
-                    NegociacaoContract.ID?.let { output(it, propostaState1) }
-                    NegociacaoContract.ID?.let { output(it, propostaState1) }
+                    NegociacaoContract.ID?.let { output(it, propostaState2) }
+                    NegociacaoContract.ID?.let { output(it, propostaState2) }
                     failsWith(UNICO_INPUT)
                 }
                 NegociacaoContract.ID?.let { input(it, propostaState1) }
-                NegociacaoContract.ID?.let { output(it, propostaState1) }
+                NegociacaoContract.ID?.let { output(it, propostaState2) }
                 verifies()
             }
         }
     }
 
     @Test
-    fun `deve aceitar propostas com estado de input e output do tipo PropostaState`() {
+    fun `deve aceitar modificações de input do tipo PropostaState e output do tipo PropostaState`() {
         ledgerServices.ledger{
             transaction {
-                command(listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.Aceitar())
+                command(listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.ContraProposta())
                 tweak {
                     NegociacaoContract.ID?.let { input(it, propostaState1) }
                     failsWith(UNICO_OUTPUT)
                 }
                 tweak {
-                    NegociacaoContract.ID?.let { output(it, propostaState1) }
+                    NegociacaoContract.ID?.let { output(it, DummyState()) }
                     failsWith(UNICO_INPUT)
                 }
                 NegociacaoContract.ID?.let { input(it, propostaState1) }
-                NegociacaoContract.ID?.let { output(it, propostaState1) }
+                NegociacaoContract.ID?.let { output(it, propostaState2) }
                 verifies()
             }
         }
     }
 
     @Test
-    fun `deve aceitar propostas com um comando do tipo Aceitar`() {
+    fun `deve aceitar modificações de input e output do tipo PropostaState`() {
+        ledgerServices.ledger{
+            transaction {
+                NegociacaoContract.ID?.let { input(it, propostaState1) }
+                NegociacaoContract.ID?.let { output(it, propostaState2) }
+                command(listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.ContraProposta())
+                tweak {
+                    NegociacaoContract.ID?.let { input(it, propostaState1) }
+                    failsWith(UNICO_INPUT)
+                }
+                tweak {
+                    NegociacaoContract.ID?.let { output(it, propostaState1) }
+                    failsWith(UNICO_OUTPUT)
+                }
+                verifies()
+            }
+        }
+    }
+
+    @Test
+    fun `deve possuir uma transação de proposta e ter exatamente um comando do tipo Proposta`() {
         ledgerServices.ledger {
             transaction {
                 NegociacaoContract.ID?.let { input(it, propostaState1) }
-                NegociacaoContract.ID?.let { output(it, propostaState1) }
+                NegociacaoContract.ID?.let { output(it, propostaState2) }
                 tweak {
                     command(listOf(alice.publicKey, bob.publicKey), DummyCommandData)
                     failsWith(COMANDO_VALIDO)
                 }
-                command(listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.Aceitar())
+                command(listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.ContraProposta())
                 verifies()
             }
         }
     }
 
     @Test
-    fun `deve validar se o input e output da proposta tem a mesma taxa`() {
+    fun `deve validar se a transação possui taxas diferentes`() {
         ledgerServices.ledger{
             transaction {
-                command(listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.Aceitar())
+                command(listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.ContraProposta())
                 tweak {
                     NegociacaoContract.ID?.let { input(it, propostaState1) }
-                    NegociacaoContract.ID?.let { output(it, propostaState2) }
-                    failsWith(TAXA_NAO_MODIFICADA)
-                }
-                tweak {
-                    NegociacaoContract.ID?.let { input(it, propostaState2) }
                     NegociacaoContract.ID?.let { output(it, propostaState1) }
-                    failsWith(TAXA_NAO_MODIFICADA)
+                    verifies()
                 }
                 NegociacaoContract.ID?.let { input(it, propostaState1) }
-                NegociacaoContract.ID?.let { output(it, propostaState1) }
+                NegociacaoContract.ID?.let { output(it, propostaState2) }
+                verifies()
+            }
+        }
+    }
+
+    @Test
+    fun `deve validar se a transação possui duas assinaturas - proponente e oblito`() {
+        ledgerServices.ledger {
+            transaction {
+                NegociacaoContract.ID?.let { input(it, propostaState1) }
+                NegociacaoContract.ID?.let { output(it, propostaState2) }
+                tweak {
+                    command(listOf(alice.publicKey, charlie.publicKey), NegociacaoContract.Commands.ContraProposta())
+                    failsWith(ASSINATURA_OBLITO_OBRIGATORIA)
+                }
+                tweak {
+                    command(listOf(charlie.publicKey, bob.publicKey), NegociacaoContract.Commands.ContraProposta())
+                    failsWith(ASSINATURA_PROPONENTE_OBRIGATORIA)
+                }
+                command(listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.ContraProposta())
                 verifies()
             }
         }
@@ -177,40 +213,20 @@ class AceitePropostaContractTest {
         ledgerServices.ledger {
             transaction {
                 NegociacaoContract.ID?.let { input(it, propostaState1) }
-                NegociacaoContract.ID?.let { output(it, propostaState1) }
-                command(listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.Aceitar())
+                command(listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.ContraProposta())
                 tweak {
                     NegociacaoContract.ID?.let { output(it, propostaStateInvalida1) }
-                    failsWith(UNICO_OUTPUT)
+                    failsWith(VENDEDOR_NAO_MODIFICADO)
                 }
                 tweak {
                     NegociacaoContract.ID?.let { output(it, propostaStateInvalida2) }
-                    failsWith(UNICO_OUTPUT)
+                    failsWith(COMPRADOR_NAO_MODIFICADO)
                 }
                 tweak {
                     NegociacaoContract.ID?.let { output(it, propostaStateInvalida3) }
-                    failsWith(UNICO_OUTPUT)
+                    failsWith(COMPRADOR_NAO_MODIFICADO)
                 }
-                verifies()
-            }
-        }
-    }
-
-    @Test
-    fun `deve validar transações em que comprador e vendedor são proponente e oblato respectivamente`() {
-        ledgerServices.ledger {
-            transaction {
-                NegociacaoContract.ID?.let { input(it, propostaState1) }
-                NegociacaoContract.ID?.let { output(it, propostaState1) }
-                tweak {
-                    command(listOf(alice.publicKey, charlie.publicKey), NegociacaoContract.Commands.Aceitar())
-                    failsWith(ASSINATURA_OBLITO_OBRIGATORIA)
-                }
-                tweak {
-                    command(listOf(charlie.publicKey, bob.publicKey), NegociacaoContract.Commands.Aceitar())
-                    failsWith(ASSINATURA_PROPONENTE_OBRIGATORIA)
-                }
-                command(listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.Aceitar())
+                NegociacaoContract.ID?.let { output(it, propostaState2) }
                 verifies()
             }
         }
@@ -221,8 +237,8 @@ class AceitePropostaContractTest {
         ledgerServices.ledger {
             transaction {
                 NegociacaoContract.ID?.let { input(it, propostaState1) }
-                NegociacaoContract.ID?.let { output(it, propostaState1) }
-                command(listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.Aceitar())
+                NegociacaoContract.ID?.let { output(it, propostaState2) }
+                command(listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.ContraProposta())
                 tweak {
                     timeWindow(Instant.now())
                     failsWith(NENHUM_TIMESTAMP)
