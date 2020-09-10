@@ -87,6 +87,19 @@ abstract class FlowTestsBase {
         future.get()
     }
 
+    fun nodeAContraProposta(
+        propostaId: UniqueIdentifier,
+        novaTaxa: BigDecimal
+    ) {
+
+        val flow = ContraPropostaFlow.Initiator(propostaId, novaTaxa)
+        val future = this.a.startFlow(flow)
+
+        this.network.runNetwork()
+
+        future.get()
+    }
+
     fun nodeBContraProposta(
         propostaId: UniqueIdentifier,
         novaTaxa: BigDecimal

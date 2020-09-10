@@ -50,7 +50,6 @@ class NegociacaoContract : Contract {
                 val output = tx.outputsOfType<PropostaState>().single()
                 val input = tx.inputsOfType<PropostaState>().single()
 
-                "The taxa is modified in the output" using (output.taxa != input.taxa)
                 "The comprador is unmodified in the output" using (input.comprador == output.comprador)
                 "The vendedor is unmodified in the output" using (input.vendedor == output.vendedor)
 
