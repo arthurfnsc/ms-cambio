@@ -1,0 +1,29 @@
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav-content>
+    <mat-toolbar color="primary">
+       <button mat-button color="primary">DashBoard</button>
+       <button mat-button>Negociações</button>
+       <button mat-button>Câmbio</button>
+       <span class="navbar-spacer"></span>
+       <button mat-button [matMenuTriggerFor]="menu">
+          <mat-icon>account_circle</mat-icon>
+          <span> Conrado Basso</span>
+          <mat-icon>keyboard_arrow_down</mat-icon>
+       </button>
+       <mat-menu #menu="matMenu">
+        <button mat-menu-item>
+          <mat-icon>settings</mat-icon>
+          <span>Configurações</span>
+        </button>
+        <button mat-menu-item>
+          <mat-icon>exit_to_app</mat-icon>
+          <span>Sair</span>
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+    <!-- Add Content Here -->
+  </mat-sidenav-content>
+</mat-sidenav-container>
+<router-outlet name="body">
+  <ng-component></ng-component>
+</router-outlet>
