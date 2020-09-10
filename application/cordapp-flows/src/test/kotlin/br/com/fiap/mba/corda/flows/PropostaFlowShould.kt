@@ -16,7 +16,6 @@ class PropostaFlowShould: FlowTestsBase() {
 
         private const val VALOR_QUANTIDADE_VALIDO = 2
         private const val MOEDA_VALIDA = "USD"
-        private const val VALOR_NEGATIVO = -1
     }
 
     @Test
