@@ -74,9 +74,9 @@ class PropostaFlowShould: FlowTestsBase() {
                 cotacaoReal = VALOR_COTACAO_REAL_VALIDO,
                 taxa = VALOR_TAXA_VALIDO
             )
-        }
+        }.cause!!
 
-        assertEquals("O comprador e o vendedor devem ser diferentes!", exception.cause!!.message)
+        assertEquals("O comprador e o vendedor devem ser diferentes!", exception.message)
     }
 
     @Test
@@ -93,9 +93,9 @@ class PropostaFlowShould: FlowTestsBase() {
                 cotacaoReal = VALOR_COTACAO_REAL_VALIDO,
                 taxa = VALOR_TAXA_VALIDO
             )
-        }
+        }.cause!!
 
-        assertEquals("A quantidade deve ser maior que zero!", exception.cause!!.message)
+        assertEquals("A quantidade deve ser maior que zero!", exception.message)
     }
 
     @Test
@@ -112,8 +112,84 @@ class PropostaFlowShould: FlowTestsBase() {
                 cotacaoReal = VALOR_COTACAO_REAL_VALIDO,
                 taxa = VALOR_TAXA_VALIDO
             )
-        }
+        }.cause!!
 
-        assertEquals("A quantidade deve ser maior que zero!", exception.cause!!.message)
+        assertEquals("A quantidade deve ser maior que zero!", exception.message)
+    }
+
+    @Test
+    fun `not accept transactions with zero cotacaoReal`() {
+
+        val nodeB = this.b.info.chooseIdentity()
+
+        val exception = assertThrows(ExecutionException::class.java) {
+
+            this.nodeACriarProposta(
+                instituicaoFinanceira = nodeB,
+                moeda = MOEDA_VALIDA,
+                quantidade = VALOR_QUANTIDADE_VALIDO,
+                cotacaoReal = BigDecimal.ZERO,
+                taxa = VALOR_TAXA_VALIDO
+            )
+        }.cause!!
+
+        assertEquals("A cotação do Real deve ser maior que zero!", exception.message)
+    }
+
+    @Test
+    fun `not accept transactions with negative cotacaoReal`() {
+
+        val nodeB = this.b.info.chooseIdentity()
+
+        val exception = assertThrows(ExecutionException::class.java) {
+
+            this.nodeACriarProposta(
+                instituicaoFinanceira = nodeB,
+                moeda = MOEDA_VALIDA,
+                quantidade = VALOR_QUANTIDADE_VALIDO,
+                cotacaoReal = BigDecimal(VALOR_NEGATIVO),
+                taxa = VALOR_TAXA_VALIDO
+            )
+        }.cause!!
+
+        assertEquals("A cotação do Real deve ser maior que zero!", exception.message)
+    }
+
+    @Test
+    fun `not accept transactions with zero taxa`() {
+
+        val nodeB = this.b.info.chooseIdentity()
+
+        val exception = assertThrows(ExecutionException::class.java) {
+
+            this.nodeACriarProposta(
+                instituicaoFinanceira = nodeB,
+                moeda = MOEDA_VALIDA,
+                quantidade = VALOR_QUANTIDADE_VALIDO,
+                cotacaoReal = VALOR_COTACAO_REAL_VALIDO,
+                taxa = BigDecimal.ZERO
+            )
+        }.cause!!
+
+        assertEquals("A taxa deve ser maior que zero!", exception.message)
+    }
+
+    @Test
+    fun `not accept transactions with negative taxa`() {
+
+        val nodeB = this.b.info.chooseIdentity()
+
+        val exception = assertThrows(ExecutionException::class.java) {
+
+            this.nodeACriarProposta(
+                instituicaoFinanceira = nodeB,
+                moeda = MOEDA_VALIDA,
+                quantidade = VALOR_QUANTIDADE_VALIDO,
+                cotacaoReal = VALOR_COTACAO_REAL_VALIDO,
+                taxa = BigDecimal(VALOR_NEGATIVO)
+            )
+        }.cause!!
+
+        assertEquals("A taxa deve ser maior que zero!", exception.message)
     }
 }
