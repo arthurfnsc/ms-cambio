@@ -5,11 +5,11 @@ import groovy.util.GroovyTestCase.assertEquals
 import net.corda.core.node.services.queryBy
 import net.corda.testing.internal.chooseIdentity
 import org.junit.Test
-import org.junit.jupiter.api.Assertions.assertThrows
 import java.math.BigDecimal
 import java.util.concurrent.ExecutionException
+import kotlin.test.assertFailsWith
 
-class PropostaFlowShould: FlowTestsBase() {
+class PropostaFlowTest : FlowTestsBase() {
 
     companion object {
 
@@ -23,7 +23,7 @@ class PropostaFlowShould: FlowTestsBase() {
     }
 
     @Test
-    fun `be valid`() {
+    fun `deve ser válido`() {
 
         val nodeA = this.a.info.chooseIdentity()
         val nodeB = this.b.info.chooseIdentity()
@@ -61,11 +61,11 @@ class PropostaFlowShould: FlowTestsBase() {
     }
 
     @Test
-    fun `not accept transactions with itself`() {
+    fun `não deve aceitar transações consigo mesmo`() {
 
         val nodeA = this.a.info.chooseIdentity()
 
-        val exception = assertThrows(ExecutionException::class.java) {
+        val exception = assertFailsWith<ExecutionException> {
 
             this.nodeACriarProposta(
                 instituicaoFinanceira = nodeA,
@@ -76,15 +76,16 @@ class PropostaFlowShould: FlowTestsBase() {
             )
         }.cause!!
 
+        assertEquals(IllegalArgumentException::class, exception::class)
         assertEquals("O comprador e o vendedor devem ser diferentes!", exception.message)
     }
 
     @Test
-    fun `not accept transactions with zero quantidade`() {
+    fun `não deve aceitar transações com a quantidade zero`() {
 
         val nodeB = this.b.info.chooseIdentity()
 
-        val exception = assertThrows(ExecutionException::class.java) {
+        val exception = assertFailsWith<ExecutionException> {
 
             this.nodeACriarProposta(
                 instituicaoFinanceira = nodeB,
@@ -95,15 +96,16 @@ class PropostaFlowShould: FlowTestsBase() {
             )
         }.cause!!
 
+        assertEquals(IllegalArgumentException::class, exception::class)
         assertEquals("A quantidade deve ser maior que zero!", exception.message)
     }
 
     @Test
-    fun `not accept transactions with negative quantidade`() {
+    fun `não deve aceitar transações com quantidade negativa`() {
 
         val nodeB = this.b.info.chooseIdentity()
 
-        val exception = assertThrows(ExecutionException::class.java) {
+        val exception = assertFailsWith<ExecutionException> {
 
             this.nodeACriarProposta(
                 instituicaoFinanceira = nodeB,
@@ -114,15 +116,16 @@ class PropostaFlowShould: FlowTestsBase() {
             )
         }.cause!!
 
+        assertEquals(IllegalArgumentException::class, exception::class)
         assertEquals("A quantidade deve ser maior que zero!", exception.message)
     }
 
     @Test
-    fun `not accept transactions with zero cotacaoReal`() {
+    fun `não deve aceitar transações com cotacaoReal zero`() {
 
         val nodeB = this.b.info.chooseIdentity()
 
-        val exception = assertThrows(ExecutionException::class.java) {
+        val exception = assertFailsWith<ExecutionException> {
 
             this.nodeACriarProposta(
                 instituicaoFinanceira = nodeB,
@@ -133,15 +136,16 @@ class PropostaFlowShould: FlowTestsBase() {
             )
         }.cause!!
 
+        assertEquals(IllegalArgumentException::class, exception::class)
         assertEquals("A cotação do Real deve ser maior que zero!", exception.message)
     }
 
     @Test
-    fun `not accept transactions with negative cotacaoReal`() {
+    fun `não deve aceitar transações com cotacaoReal negativa`() {
 
         val nodeB = this.b.info.chooseIdentity()
 
-        val exception = assertThrows(ExecutionException::class.java) {
+        val exception = assertFailsWith<ExecutionException> {
 
             this.nodeACriarProposta(
                 instituicaoFinanceira = nodeB,
@@ -152,15 +156,16 @@ class PropostaFlowShould: FlowTestsBase() {
             )
         }.cause!!
 
+        assertEquals(IllegalArgumentException::class, exception::class)
         assertEquals("A cotação do Real deve ser maior que zero!", exception.message)
     }
 
     @Test
-    fun `not accept transactions with zero taxa`() {
+    fun `não deve aceitar transações com taxa zero`() {
 
         val nodeB = this.b.info.chooseIdentity()
 
-        val exception = assertThrows(ExecutionException::class.java) {
+        val exception = assertFailsWith<ExecutionException> {
 
             this.nodeACriarProposta(
                 instituicaoFinanceira = nodeB,
@@ -171,15 +176,16 @@ class PropostaFlowShould: FlowTestsBase() {
             )
         }.cause!!
 
+        assertEquals(IllegalArgumentException::class, exception::class)
         assertEquals("A taxa deve ser maior que zero!", exception.message)
     }
 
     @Test
-    fun `not accept transactions with negative taxa`() {
+    fun `não deve aceitar transações com taxa negativa`() {
 
         val nodeB = this.b.info.chooseIdentity()
 
-        val exception = assertThrows(ExecutionException::class.java) {
+        val exception = assertFailsWith<ExecutionException> {
 
             this.nodeACriarProposta(
                 instituicaoFinanceira = nodeB,
@@ -190,6 +196,7 @@ class PropostaFlowShould: FlowTestsBase() {
             )
         }.cause!!
 
+        assertEquals(IllegalArgumentException::class, exception::class)
         assertEquals("A taxa deve ser maior que zero!", exception.message)
     }
 }
