@@ -389,3 +389,25 @@ Mesmo após a geração de classes, é comum algumas IDEs ainda não sincronizar
 as novas classes no projeto aberto, para tanto, lembre-se de sincronizar o  
 projeto para que as novas classes entrem no classpath do projeto, e com isso,  
 possam ser importadas por outras classes.
+
+### Erros ao rodar os testes
+
+Caso se deseje rodar os testes pelo terminal ou IDE lembre-se de possuir
+a JDK 8 instalada em uma das versões com suporte
+
+- Amazon Corretto
+- Oracle JDK
+- Red Hat’s OpenJDK
+- Zulu’s OpenJDK
+
+Em um cenário em que eu estava testando no IntelliJ ocorreu um erro referente
+a [java.lang.NoSuchFieldException: target](https://stackoverflow.com/questions/55655191/java-lang-nosuchfieldexception-target-exception-when-initiating-a-flow-from-t).
+
+No meu caso, a exemplo da pessoa que fez a pergunta, e estava usando uma 
+variação OpenJ9 do JDK
+
+![JDK 8 OpenJ9](/imgs/jdk8_j9.png)
+
+Alterando para uma versão como o Open JDK Zulu resolvi o problema
+
+![OpenJDK 8 Zulu](/imgs/openjdk_zulu.png)
