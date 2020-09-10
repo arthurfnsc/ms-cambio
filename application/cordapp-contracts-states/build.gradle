@@ -7,6 +7,8 @@ dependencies {
     cordaCompile libs.corda
 
     cordaRuntime "$cordaGroup:corda:$cordaVersion"
+
+    testCompile "$cordaGroup:corda-node-driver:$cordaVersion"
 }
 
 cordapp {
