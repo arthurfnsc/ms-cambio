@@ -5,6 +5,7 @@ import net.corda.core.contracts.Contract
 import net.corda.core.contracts.TypeOnlyCommandData
 import net.corda.core.contracts.requireSingleCommand
 import net.corda.core.contracts.requireThat
+import net.corda.core.internal.notary.isConsumedByTheSameTx
 import net.corda.core.transactions.LedgerTransaction
 
 class NegociacaoContract : Contract {
@@ -58,6 +59,7 @@ class NegociacaoContract : Contract {
             }
 
             is Commands.Proposta -> requireThat {
+
                 "There are no inputs" using (tx.inputStates.isEmpty())
                 "There is exactly one output" using (tx.outputStates.size == 1)
                 "The single output is of type PropostaState" using (tx.outputsOfType<PropostaState>().size == 1)

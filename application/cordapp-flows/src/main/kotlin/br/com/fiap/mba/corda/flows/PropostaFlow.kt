@@ -18,6 +18,7 @@ import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
+import java.lang.IllegalArgumentException
 import java.math.BigDecimal
 
 object PropostaFlow {
@@ -49,6 +50,11 @@ object PropostaFlow {
                 taxa = taxa,
                 statusTransacao = "ABERTO"
             )
+
+            require(ourIdentity != instituicaoFinanceira) {
+
+                "O comprador e o vendedor devem ser diferentes!"
+            }
 
             // Creating the command.
             val commandType = NegociacaoContract.Commands.Proposta()

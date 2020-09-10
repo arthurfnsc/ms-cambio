@@ -2,10 +2,14 @@ package br.com.fiap.mba.corda.flows
 
 import br.com.fiap.mba.corda.states.PropostaState
 import groovy.util.GroovyTestCase.assertEquals
+import net.corda.core.internal.rootMessage
 import net.corda.core.node.services.queryBy
 import net.corda.testing.internal.chooseIdentity
 import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertThrows
+import java.lang.IllegalArgumentException
 import java.math.BigDecimal
+import java.util.concurrent.ExecutionException
 
 class PropostaFlowShould: FlowTestsBase() {
 
@@ -54,5 +58,24 @@ class PropostaFlowShould: FlowTestsBase() {
                 assertEquals(VALOR_TAXA_VALIDO, proposta.taxa)
             }
         }
+    }
+
+    @Test
+    fun `not accept transactions with itself`() {
+
+        val nodeA = this.a.info.chooseIdentity()
+
+        val exception = assertThrows(ExecutionException::class.java) {
+
+            this.nodeACriarProposta(
+                instituicaoFinanceira = nodeA,
+                moeda = MOEDA_VALIDA,
+                quantidade = VALOR_QUANTIDADE_VALIDO,
+                cotacaoReal = VALOR_COTACAO_REAL_VALIDO,
+                taxa = VALOR_TAXA_VALIDO
+            )
+        }
+
+        assertEquals("O comprador e o vendedor devem ser diferentes!", exception.cause!!.message)
     }
 }
