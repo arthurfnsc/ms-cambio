@@ -5,17 +5,14 @@ sonarqube {
         property "sonar.projectName", rootProject.name
         property "sonar.projectKey", rootProject.name
         property "sonar.projectVersion", rootProject.version
-        property "sonar.host.url", System.getenv('SONARQUBE_HOST')
-        property "sonar.login", System.getenv('SONARQUBE_TOKEN')
+        //property "sonar.host.url", System.getenv('SONARQUBE_HOST')
+        //property "sonar.login", System.getenv('SONARQUBE_TOKEN')
         property 'sonar.dokka.source', JavaVersion.VERSION_1_8
         property 'sonar.dokka.target', JavaVersion.VERSION_1_8
         property 'sonar.sourceEncoding', 'UTF-8'
         property "sonar.scm.provider", "git"
-        property 'sonar.exclusions', 'build/**, **/*Test.*'
         property "sonar.import_unknown_files", true
         // SonarQube 6.2+
         property 'sonar.jacoco.reportPaths', fileTree(dir: project.projectDir, includes: ['**/*.exec', '**/*.ec'])
-        // SonarQube 4.11+
-        property 'sonar.jacoco.reportPath', fileTree(dir: project.projectDir, includes: ['**/*.exec', '**/*.ec'])
     }
 }

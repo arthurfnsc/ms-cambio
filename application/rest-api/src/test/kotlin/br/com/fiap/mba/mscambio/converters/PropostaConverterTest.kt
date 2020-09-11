@@ -1,6 +1,5 @@
 package br.com.fiap.mba.mscambio.converters
 
-
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.openapi.cambio.server.model.PropostaNegociacaoRequest

@@ -22,7 +22,8 @@ class ContraPropostaContractTest {
 
     private companion object {
 
-        private const val COMANDO_VALIDO = "Required br.com.fiap.mba.corda.contracts.NegociacaoContract.Commands command"
+        private const val COMANDO_VALIDO = "Required " +
+            "br.com.fiap.mba.corda.contracts.NegociacaoContract.Commands command"
     }
 
     private val ledgerServices = MockServices(
@@ -95,7 +96,7 @@ class ContraPropostaContractTest {
 
     @Test
     fun `deve validar se modificações de transações possuem apenas um input e output`() {
-        ledgerServices.ledger{
+        ledgerServices.ledger {
             transaction {
                 command(listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.ContraProposta())
                 tweak {
@@ -117,7 +118,7 @@ class ContraPropostaContractTest {
 
     @Test
     fun `deve aceitar modificações de input do tipo PropostaState e output do tipo PropostaState`() {
-        ledgerServices.ledger{
+        ledgerServices.ledger {
             transaction {
                 command(listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.ContraProposta())
                 tweak {
@@ -137,7 +138,7 @@ class ContraPropostaContractTest {
 
     @Test
     fun `deve aceitar modificações de input e output do tipo PropostaState`() {
-        ledgerServices.ledger{
+        ledgerServices.ledger {
             transaction {
                 NegociacaoContract.ID?.let { input(it, propostaState1) }
                 NegociacaoContract.ID?.let { output(it, propostaState2) }
@@ -173,7 +174,7 @@ class ContraPropostaContractTest {
 
     @Test
     fun `deve validar se a transação possui taxas diferentes`() {
-        ledgerServices.ledger{
+        ledgerServices.ledger {
             transaction {
                 command(listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.ContraProposta())
                 tweak {

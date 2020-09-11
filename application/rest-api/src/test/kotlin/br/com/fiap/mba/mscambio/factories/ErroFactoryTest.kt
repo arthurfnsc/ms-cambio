@@ -11,7 +11,7 @@ class ErroFactoryTest {
     fun `validar conversão ErroFactory com HTTP Status`() {
 
         val erro = ErroFactory.criar(
-            httpStatus= HttpStatus.OK
+            httpStatus = HttpStatus.OK
         )
 
         assertThat(erro.descricao).isNull()

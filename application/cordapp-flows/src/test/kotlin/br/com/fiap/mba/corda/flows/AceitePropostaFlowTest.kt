@@ -4,6 +4,7 @@ import br.com.fiap.mba.corda.states.PropostaState
 import net.corda.core.flows.FlowException
 import net.corda.core.node.services.queryBy
 import net.corda.testing.internal.chooseIdentity
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.math.BigDecimal
 import java.util.concurrent.ExecutionException
@@ -46,8 +47,8 @@ class AceitePropostaFlowTest : FlowTestsBase() {
 
                 assertEquals(VALOR_TAXA_VALIDO, proposta.taxa)
 
-                assertEquals(a.info.chooseIdentity(), proposta.comprador)
-                assertEquals(b.info.chooseIdentity(), proposta.vendedor)
+                assertThat(a.info.chooseIdentity()).isEqualTo(proposta.comprador)
+                assertThat(b.info.chooseIdentity()).isEqualTo(proposta.vendedor)
             }
         }
     }

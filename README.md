@@ -295,6 +295,7 @@ apontando para para o usuário da **Corretora**
 - [Detekt](https://github.com/arturbosch/detekt)
 - [JaCoCo](https://www.eclemma.org/jacoco/)
 - [Markdown Lint](https://github.com/appmattus/markdown-lint)
+- [PITest](https://pitest.org/)
 - [SonarQube](https://www.sonarqube.org/)
 
 ## Relatórios
@@ -317,7 +318,7 @@ foo@bar:ms-cambio$ [./gradlew | gradlew.bat] dokka
 foo@bar:ms-cambio$ [./gradlew | gradlew.bat] projectReport
 ```
 
-## Security
+## Segurança
 
 - [OSS Index](https://github.com/OSSIndex/ossindex-gradle-plugin/)
 
@@ -329,6 +330,68 @@ foo@bar:ms-cambio$ [./gradlew | gradlew.bat] audit
 
 ```console
 foo@bar:ms-cambio$ [./gradlew | gradlew.bat] dependencyCheckAggregate
+```
+
+## Testes
+
+```console
+foo@bar:ms-cambio$ [./gradlew | gradlew.bat] test
+```
+
+### JaCoCo
+
+A task de **test** está associada à task **jacocoTestReport** (para mais
+informações **plugins/jacoco.gradle**)
+
+Porém, por se tratar de um projeto com sub-estruturas de pastas
+
+```console
+.
+└── application
+    ├── cordapp-contracts-states
+    ├── cordapp-flows
+    └── rest-api
+```
+
+É necessário executar uma task caso se deseje agrupar os reports a fim de
+enviá-los para o **SonarQube** ou caso se deseje ver esses dados agrupados.
+
+```console
+foo@bar:ms-cambio$ [./gradlew | gradlew.bat] jacocoRootReport
+```
+
+A task depende da task de **test** de cada projeto, executando estes primeiramente.
+
+### PITest
+
+Os [Testes de Mutantes](https://blog.caelum.com.br/testes-de-mutantes/amp/)
+são bem úteis para se descobrir comportamentos inesperados no nosso código que
+não estão cobertos. 
+
+Para executá-los no projeto utilize a task:
+
+```console
+foo@bar:ms-cambio$ [./gradlew | gradlew.bat] pitest
+```
+
+### SonarQube
+
+O **SonarQube** é uma ferramenta de análise estática de código. Nesse projeto
+colocamos um arquivo com o [docker-compose](https://docs.docker.com/compose/compose-file/)
+na pasta **config/sonarqube/sonarqube-h2.yml** caso se deseje executar a
+análise em ambiente local. Para tanto, execute os seguintes comandos:
+
+```console
+foo@bar:ms-cambio$ docker-compose -f config/sonarqube/sonarqube-h2.yml up
+```
+
+O **SonarQube** estará disponível na porta **9000**. Para o usuário defaut
+o login é **admin** e a senha é **admin**.
+
+Com o **SonarQube** em execução rode o comando:
+
+```console
+foo@bar:ms-cambio$ [./gradlew | gradlew.bat] sonarqube
 ```
 
 ## Principais problemas

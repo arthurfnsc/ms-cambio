@@ -23,8 +23,9 @@ class PropostaContractTest {
 
     private companion object {
 
-        private const val COMANDO_VALIDO = "Required br.com.fiap.mba.corda.contracts.NegociacaoContract.Commands command"
-        private const val INPUT_OUTPUT_STATE = "A transaction must contain at least one input or output state";
+        private const val COMANDO_VALIDO = "Required " +
+            "br.com.fiap.mba.corda.contracts.NegociacaoContract.Commands command"
+        private const val INPUT_OUTPUT_STATE = "A transaction must contain at least one input or output state"
     }
 
     private val ledgerServices = MockServices(

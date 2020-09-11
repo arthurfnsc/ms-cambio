@@ -37,7 +37,7 @@ class ContraPropostaFlowTest : FlowTestsBase() {
         )
 
         this.nodeBContraProposta(
-            propostaId= propostaId,
+            propostaId = propostaId,
             novaTaxa = PRIMEIRA_CONTRA_PROPOSTA
         )
 
@@ -74,12 +74,12 @@ class ContraPropostaFlowTest : FlowTestsBase() {
         )
 
         this.nodeBContraProposta(
-            propostaId= propostaId,
+            propostaId = propostaId,
             novaTaxa = PRIMEIRA_CONTRA_PROPOSTA
         )
 
         this.nodeAContraProposta(
-            propostaId= propostaId,
+            propostaId = propostaId,
             novaTaxa = SEGUNDA_CONTRA_PROPOSTA
         )
 

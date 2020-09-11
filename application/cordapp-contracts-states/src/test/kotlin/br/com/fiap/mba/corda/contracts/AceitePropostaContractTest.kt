@@ -19,7 +19,8 @@ import java.time.Instant
 class AceitePropostaContractTest {
 
     private companion object {
-        private const val COMANDO_VALIDO = "Required br.com.fiap.mba.corda.contracts.NegociacaoContract.Commands command"
+        private const val COMANDO_VALIDO = "Required " +
+            "br.com.fiap.mba.corda.contracts.NegociacaoContract.Commands command"
     }
 
     private val ledgerServices = MockServices(
@@ -92,7 +93,7 @@ class AceitePropostaContractTest {
 
     @Test
     fun `deve aceitar propostas que tenham apenas um estado de input e um estado de output`() {
-        ledgerServices.ledger{
+        ledgerServices.ledger {
             transaction {
                 command(
                     listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.Aceitar())
@@ -116,7 +117,7 @@ class AceitePropostaContractTest {
 
     @Test
     fun `deve aceitar propostas com estado de input e output do tipo PropostaState`() {
-        ledgerServices.ledger{
+        ledgerServices.ledger {
             transaction {
                 command(listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.Aceitar())
                 tweak {
@@ -152,7 +153,7 @@ class AceitePropostaContractTest {
 
     @Test
     fun `deve validar se o input e output da proposta tem a mesma taxa`() {
-        ledgerServices.ledger{
+        ledgerServices.ledger {
             transaction {
                 command(listOf(alice.publicKey, bob.publicKey), NegociacaoContract.Commands.Aceitar())
                 tweak {

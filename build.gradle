@@ -119,8 +119,6 @@ configure(allprojects - project(":application")) {
 
 subprojects {
 
-    apply plugin: "info.solidsoft.pitest"
-
     pitest {
 
         avoidCallsTo = ["kotlin.jvm.internal", "org.slf4j"]
