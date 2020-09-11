@@ -200,29 +200,14 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
 
 task jacocoRootReport(type: JacocoReport) {
 
-    def publishedProjects = subprojects.findAll{
-        it.name != "application" &&
-            it.name != "cordapp-contracts-states" &&
-            it.name != "cordapp-flows" &&
-            it.name != "rest-api"
-    }
+    def publishedProjects = project(":application").subprojects
 
-    dependsOn.publishedProjects.test
+    dependsOn = publishedProjects.test
 
-    sourceDirectories.from = publishedProjects.sourceSets.main.allSource.srcDirs
-    additionalSourceDirs.from = publishedProjects.sourceSets.main.allSource.srcDirs
-    classDirectories.from = publishedProjects.sourceSets.main.output
-    executionData.from = publishedProjects.jacocoTestReport.executionData
-
-    reports {
-        html.enabled = true
-        xml.enabled = true
-        csv.enabled = false
-    }
-
-    onlyIf = {
-        true
-    }
+    additionalSourceDirs.from = files(publishedProjects.sourceSets.main.allSource.srcDirs)
+    classDirectories.from =  files(publishedProjects.sourceSets.main.output)
+    executionData.from = files(publishedProjects.jacocoTestReport.executionData)
+    sourceDirectories.from = files(publishedProjects.sourceSets.main.allSource.srcDirs)
 
     doFirst {
         getExecutionData().setFrom(files(executionData.findAll {
@@ -230,10 +215,21 @@ task jacocoRootReport(type: JacocoReport) {
         }))
     }
 
+    onlyIf = {
+        true
+    }
+
+    reports {
+        html.enabled = true
+        xml.enabled = true
+        csv.enabled = false
+    }
+
     afterEvaluate {
         getClassDirectories().setFrom(files(classDirectories.files.collect {
             fileTree(dir: it,
                 exclude: [
+                    '**/openapi/cambio/**'
                 ]
             )
         }))

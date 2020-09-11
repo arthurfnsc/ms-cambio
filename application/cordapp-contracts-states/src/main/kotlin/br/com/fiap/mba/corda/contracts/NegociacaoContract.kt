@@ -16,7 +16,7 @@ class NegociacaoContract : Contract {
 
         const val ASSINATURA_OBLITO_OBRIGATORIA = "A assinatura do oblito é obrigatória!"
         const val ASSINATURA_PROPONENTE_OBRIGATORIA = "A assinatura do proponente é obrigatória!"
-        
+
         const val COMPRADOR_NAO_MODIFICADO = "O comprador não foi modificado no output!"
         const val COMPRADOR_VENDEDOR = "O comprador e vendedor devem ser respectivamente o proponente e oblito!"
         const val TAXA_NAO_MODIFICADA = "A taxa não deve ser modificada no output!"
@@ -24,11 +24,11 @@ class NegociacaoContract : Contract {
 
         const val NENHUM_INPUT = "Não existe nenhum input!"
         const val NENHUM_TIMESTAMP = "Não existe nenhum timestamp!"
-        const val UNICO_COMMAND = "Existe apenas 1 command!";
-        const val UNICO_INPUT = "Existe apenas 1 input!";
-        const val UNICO_INPUT_PROPOSTASTATE = "Existe apenas 1 input do tipo PropostaState!";
-        const val UNICO_OUTPUT = "Existe apenas 1 output!";
-        const val UNICO_OUTPUT_PROPOSTASTATE = "Existe apenas 1 output do tipo PropostaState!";
+        const val UNICO_COMMAND = "Existe apenas 1 command!"
+        const val UNICO_INPUT = "Existe apenas 1 input!"
+        const val UNICO_INPUT_PROPOSTASTATE = "Existe apenas 1 input do tipo PropostaState!"
+        const val UNICO_OUTPUT = "Existe apenas 1 output!"
+        const val UNICO_OUTPUT_PROPOSTASTATE = "Existe apenas 1 output do tipo PropostaState!"
     }
 
     private fun validarAceite(
@@ -149,7 +149,7 @@ class NegociacaoContract : Contract {
 
     // Used to indicate the transaction's intent.
     sealed class Commands : TypeOnlyCommandData() {
-        
+
         class Aceitar : Commands()
         class ContraProposta : Commands()
         class Proposta : Commands()
