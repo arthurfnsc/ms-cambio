@@ -117,32 +117,20 @@ configure(allprojects - project(":application")) {
     }
 }
 
-boolean useDescartes = hasProperty("descartes")
-
 subprojects {
 
     apply plugin: "info.solidsoft.pitest"
 
-    if (useDescartes) {
-        // just adding this dependency to classpath breaks default mutation engine
-        pitest('eu.stamp-project:descartes:1.2.6')
-    }
-
     pitest {
 
+        avoidCallsTo = ["kotlin.jvm.internal", "org.slf4j"]
         junit5PluginVersion = '0.12'
         historyInputLocation = file("$buildDir/pitest")
         historyOutputLocation = file("$buildDir/pitest")
         jvmArgs = ['-Dspring.test.constructor.autowire.mode=all']
+        mutators = ["STRONGER"]
         pitestVersion = '1.5.2'
         targetClasses = ['br.com.fiap.mba.*']
-
-        if (useDescartes) {
-            mutationEngine = 'descartes'
-        } else {
-            avoidCallsTo = ["kotlin.jvm.internal", "org.slf4j"]
-            mutators = ["STRONGER"]
-        }
 
         if (project.name in ['application']) {
             failWhenNoMutations = false
