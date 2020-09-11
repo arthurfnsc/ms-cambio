@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutionException
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-class ContraPropostaFlowTes : FlowTestsBase() {
+class ContraPropostaFlowTest : FlowTestsBase() {
 
     companion object {
 

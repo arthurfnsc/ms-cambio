@@ -2,6 +2,7 @@ plugins {
 
     id "com.appmattus.markdown" version "0.6.0" apply false
     id "com.github.ben-manes.versions" version "0.29.0" apply false
+    id 'info.solidsoft.pitest' version '1.5.1'
     id "io.gitlab.arturbosch.detekt" version "1.12.0" apply false
     id "net.corda.plugins.cordapp" version "5.0.11"
     id "net.corda.plugins.cordformation" version "5.0.11"
@@ -116,6 +117,39 @@ configure(allprojects - project(":application")) {
     }
 }
 
+boolean useDescartes = hasProperty("descartes")
+
+subprojects {
+
+    apply plugin: "info.solidsoft.pitest"
+
+    if (useDescartes) {
+        // just adding this dependency to classpath breaks default mutation engine
+        pitest('eu.stamp-project:descartes:1.2.6')
+    }
+
+    pitest {
+
+        junit5PluginVersion = '0.12'
+        historyInputLocation = file("$buildDir/pitest")
+        historyOutputLocation = file("$buildDir/pitest")
+        jvmArgs = ['-Dspring.test.constructor.autowire.mode=all']
+        pitestVersion = '1.5.2'
+        targetClasses = ['br.com.fiap.mba.*']
+
+        if (useDescartes) {
+            mutationEngine = 'descartes'
+        } else {
+            avoidCallsTo = ["kotlin.jvm.internal", "org.slf4j"]
+            mutators = ["STRONGER"]
+        }
+
+        if (project.name in ['application']) {
+            failWhenNoMutations = false
+        }
+    }
+}
+
 dependencies {
 
     cordaCompile libs.corda
@@ -150,6 +184,18 @@ cordapp {
         vendor "Nameless"
         licence "A liberal, open source licence"
         versionId 1
+    }
+}
+
+pitest {
+    testPlugin = "junit5"
+    targetClasses = ['br.com.fiap.mba.*']  //by default "${project.group}.*"
+    threads = 4
+    outputFormats = ['XML', 'HTML']
+    timestampedReports = false
+
+    if (project.name in ['application', 'cordapp-contracts-states', 'cordapp-flows']) {
+        failWhenNoMutations = false
     }
 }
 
