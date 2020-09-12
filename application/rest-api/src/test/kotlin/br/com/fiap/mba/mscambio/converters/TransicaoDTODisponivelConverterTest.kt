@@ -1,6 +1,6 @@
 package br.com.fiap.mba.mscambio.converters
 
-import br.com.fiap.mba.mscambio.dtos.Transicao
+import br.com.fiap.mba.mscambio.dtos.TransicaoDTO
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.openapi.cambio.server.model.TransicaoDisponivel
@@ -14,7 +14,7 @@ import org.springframework.test.context.ContextConfiguration
     ]
 )
 @SpringBootTest
-internal class TransicaoDisponivelConverterTest {
+internal class TransicaoDTODisponivelConverterTest {
 
     @Autowired
     private lateinit var conversor: TransicaoDisponivelConverter
@@ -29,7 +29,7 @@ internal class TransicaoDisponivelConverterTest {
 
         val resultado = this.conversor.from(TransicaoDisponivel.TransicaoEnum.ACEITADO)
 
-        assertThat(resultado).isEqualTo(Transicao.ACEITADO)
+        assertThat(resultado).isEqualTo(TransicaoDTO.ACEITADO)
     }
 
     @Test
@@ -37,7 +37,7 @@ internal class TransicaoDisponivelConverterTest {
 
         val resultado = this.conversor.from(TransicaoDisponivel.TransicaoEnum.CONTRA_PROPOSTA)
 
-        assertThat(resultado).isEqualTo(Transicao.CONTRA_PROPOSTA)
+        assertThat(resultado).isEqualTo(TransicaoDTO.CONTRA_PROPOSTA)
     }
 
     @Test
@@ -45,6 +45,6 @@ internal class TransicaoDisponivelConverterTest {
 
         val resultado = this.conversor.from(TransicaoDisponivel.TransicaoEnum.REJEITADO)
 
-        assertThat(resultado).isEqualTo(Transicao.REJEITADO)
+        assertThat(resultado).isEqualTo(TransicaoDTO.REJEITADO)
     }
 }

@@ -6,8 +6,8 @@ import net.corda.testing.node.MockNetwork
 import net.corda.testing.node.MockNetworkParameters
 import net.corda.testing.node.StartedMockNode
 import net.corda.testing.node.TestCordapp
-import org.junit.After
-import org.junit.Before
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import java.math.BigDecimal
 
 abstract class FlowTestsBase {
@@ -15,7 +15,7 @@ abstract class FlowTestsBase {
     lateinit var a: StartedMockNode
     lateinit var b: StartedMockNode
 
-    @Before
+    @BeforeAll
     fun setup() {
 
         this.network = MockNetwork(
@@ -46,7 +46,7 @@ abstract class FlowTestsBase {
         this.network.runNetwork()
     }
 
-    @After
+    @AfterAll
     fun tearDown() {
 
         this.network.stopNodes()

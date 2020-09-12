@@ -292,9 +292,13 @@ apontando para para o usuário da **Corretora**
 
 ## Qualidade de Código
 
+- [ArchUnit](https://www.archunit.org/)
+- [AssertJ](https://assertj.github.io/doc/)
 - [Detekt](https://github.com/arturbosch/detekt)
 - [JaCoCo](https://www.eclemma.org/jacoco/)
+- [JUnit 5](https://junit.org/junit5/)
 - [Markdown Lint](https://github.com/appmattus/markdown-lint)
+- [Mockito](https://site.mockito.org/)
 - [PITest](https://pitest.org/)
 - [SonarQube](https://www.sonarqube.org/)
 

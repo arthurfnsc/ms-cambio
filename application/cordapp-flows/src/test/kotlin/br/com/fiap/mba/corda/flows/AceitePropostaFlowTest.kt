@@ -5,7 +5,7 @@ import net.corda.core.flows.FlowException
 import net.corda.core.node.services.queryBy
 import net.corda.testing.internal.chooseIdentity
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.util.concurrent.ExecutionException
 import kotlin.test.assertEquals

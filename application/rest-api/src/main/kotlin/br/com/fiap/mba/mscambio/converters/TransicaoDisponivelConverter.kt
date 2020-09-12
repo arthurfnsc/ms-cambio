@@ -1,6 +1,6 @@
 package br.com.fiap.mba.mscambio.converters
 
-import br.com.fiap.mba.mscambio.dtos.Transicao
+import br.com.fiap.mba.mscambio.dtos.TransicaoDTO
 import org.mapstruct.Mapper
 import org.openapi.cambio.server.model.TransicaoDisponivel
 
@@ -9,5 +9,5 @@ import org.openapi.cambio.server.model.TransicaoDisponivel
 )
 interface TransicaoDisponivelConverter {
 
-    fun from(element: TransicaoDisponivel.TransicaoEnum): Transicao
+    fun from(element: TransicaoDisponivel.TransicaoEnum): TransicaoDTO
 }

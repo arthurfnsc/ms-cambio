@@ -17,6 +17,7 @@ plugins {
 ext {
 
     aptVersion = "0.21"
+    archUnitVersion = '0.14.1'
     artemisJmsVersion = "2.6.2"
     assertJVersion = "3.17.1"
     cordaVersion = "4.5"
@@ -95,8 +96,8 @@ configure(allprojects - project(":application")) {
             "$kotlinGroup:kotlin-reflect",
             "$kotlinGroup:kotlin-stdlib-jdk8"
         ]
-
         libs.unitTest = [
+            "com.tngtech.archunit:archunit-junit5:$archUnitVersion",
             "org.assertj:assertj-core:$assertJVersion",
             "org.junit.jupiter:junit-jupiter-api:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion"
