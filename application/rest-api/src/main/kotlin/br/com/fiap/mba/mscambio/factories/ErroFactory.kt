@@ -17,6 +17,7 @@ class ErroFactory {
             val erro = Erro()
             erro.httpCode = httpStatus.value()
             erro.httpMessage = httpStatus.reasonPhrase
+            erro.parametrosInvalidos = emptyList()
 
             return erro
         }

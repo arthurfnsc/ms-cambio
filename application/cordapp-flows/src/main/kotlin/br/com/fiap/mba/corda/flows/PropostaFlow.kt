@@ -50,6 +50,26 @@ object PropostaFlow {
                 statusTransacao = "ABERTO"
             )
 
+            require(ourIdentity != instituicaoFinanceira) {
+
+                "O comprador e o vendedor devem ser diferentes!"
+            }
+
+            require(cotacaoReal > BigDecimal.ZERO) {
+
+                "A cotação do Real deve ser maior que zero!"
+            }
+
+            require(quantidade > 0) {
+
+                "A quantidade deve ser maior que zero!"
+            }
+
+            require(taxa > BigDecimal.ZERO) {
+
+                "A taxa deve ser maior que zero!"
+            }
+
             // Creating the command.
             val commandType = NegociacaoContract.Commands.Proposta()
             val requiredSigners = listOf(ourIdentity.owningKey, instituicaoFinanceira.owningKey)

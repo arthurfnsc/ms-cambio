@@ -6,7 +6,7 @@ import br.com.fiap.mba.corda.flows.PropostaFlow
 import br.com.fiap.mba.corda.flows.RecusaPropostaFlow
 import br.com.fiap.mba.corda.states.PropostaState
 import br.com.fiap.mba.mscambio.dtos.EnvioPropostaDTO
-import br.com.fiap.mba.mscambio.dtos.Transicao
+import br.com.fiap.mba.mscambio.dtos.TransicaoDTO
 import br.com.fiap.mba.mscambio.exceptions.DestinatarioException
 import br.com.fiap.mba.mscambio.exceptions.InstituicaoFinanceiraException
 import br.com.fiap.mba.mscambio.exceptions.PropostaInvalidaException
@@ -47,7 +47,7 @@ open class CambioServiceImpl(
 
     override fun alterarStatusTransicao(
         uuid: UUID?,
-        transicao: Transicao,
+        transicao: TransicaoDTO,
         novaTaxa: Double?
     ) {
 
@@ -55,18 +55,18 @@ open class CambioServiceImpl(
 
             when (transicao) {
 
-                Transicao.ACEITADO -> this.proxy.startTrackedFlow(
+                TransicaoDTO.ACEITADO -> this.proxy.startTrackedFlow(
                     AceitePropostaFlow::Initiator,
                     UniqueIdentifier(id = uuid!!)
                 ).returnValue.getOrThrow()
 
-                Transicao.CONTRA_PROPOSTA -> this.proxy.startTrackedFlow(
+                TransicaoDTO.CONTRA_PROPOSTA -> this.proxy.startTrackedFlow(
                     ContraPropostaFlow::Initiator,
                     UniqueIdentifier(id = uuid!!),
                     novaTaxa?.toBigDecimal()
                 ).returnValue.getOrThrow()
 
-                Transicao.REJEITADO -> this.proxy.startTrackedFlow(
+                TransicaoDTO.REJEITADO -> this.proxy.startTrackedFlow(
                     RecusaPropostaFlow::Initiator,
                     UniqueIdentifier(id = uuid!!)
                 ).returnValue.getOrThrow()

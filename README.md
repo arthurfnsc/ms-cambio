@@ -292,9 +292,14 @@ apontando para para o usuário da **Corretora**
 
 ## Qualidade de Código
 
+- [ArchUnit](https://www.archunit.org/)
+- [AssertJ](https://assertj.github.io/doc/)
 - [Detekt](https://github.com/arturbosch/detekt)
 - [JaCoCo](https://www.eclemma.org/jacoco/)
+- [JUnit 5](https://junit.org/junit5/)
 - [Markdown Lint](https://github.com/appmattus/markdown-lint)
+- [Mockito](https://site.mockito.org/)
+- [PITest](https://pitest.org/)
 - [SonarQube](https://www.sonarqube.org/)
 
 ## Relatórios
@@ -317,7 +322,7 @@ foo@bar:ms-cambio$ [./gradlew | gradlew.bat] dokka
 foo@bar:ms-cambio$ [./gradlew | gradlew.bat] projectReport
 ```
 
-## Security
+## Segurança
 
 - [OSS Index](https://github.com/OSSIndex/ossindex-gradle-plugin/)
 
@@ -329,6 +334,68 @@ foo@bar:ms-cambio$ [./gradlew | gradlew.bat] audit
 
 ```console
 foo@bar:ms-cambio$ [./gradlew | gradlew.bat] dependencyCheckAggregate
+```
+
+## Testes
+
+```console
+foo@bar:ms-cambio$ [./gradlew | gradlew.bat] test
+```
+
+### JaCoCo
+
+A task de **test** está associada à task **jacocoTestReport** (para mais
+informações **plugins/jacoco.gradle**)
+
+Porém, por se tratar de um projeto com sub-estruturas de pastas
+
+```console
+.
+└── application
+    ├── cordapp-contracts-states
+    ├── cordapp-flows
+    └── rest-api
+```
+
+É necessário executar uma task caso se deseje agrupar os reports a fim de
+enviá-los para o **SonarQube** ou caso se deseje ver esses dados agrupados.
+
+```console
+foo@bar:ms-cambio$ [./gradlew | gradlew.bat] jacocoRootReport
+```
+
+A task depende da task de **test** de cada projeto, executando estes primeiramente.
+
+### PITest
+
+Os [Testes de Mutantes](https://blog.caelum.com.br/testes-de-mutantes/amp/)
+são bem úteis para se descobrir comportamentos inesperados no nosso código que
+não estão cobertos. 
+
+Para executá-los no projeto utilize a task:
+
+```console
+foo@bar:ms-cambio$ [./gradlew | gradlew.bat] pitest
+```
+
+### SonarQube
+
+O **SonarQube** é uma ferramenta de análise estática de código. Nesse projeto
+colocamos um arquivo com o [docker-compose](https://docs.docker.com/compose/compose-file/)
+na pasta **config/sonarqube/sonarqube-h2.yml** caso se deseje executar a
+análise em ambiente local. Para tanto, execute os seguintes comandos:
+
+```console
+foo@bar:ms-cambio$ docker-compose -f config/sonarqube/sonarqube-h2.yml up
+```
+
+O **SonarQube** estará disponível na porta **9000**. Para o usuário defaut
+o login é **admin** e a senha é **admin**.
+
+Com o **SonarQube** em execução rode o comando:
+
+```console
+foo@bar:ms-cambio$ [./gradlew | gradlew.bat] sonarqube
 ```
 
 ## Principais problemas
@@ -389,3 +456,25 @@ Mesmo após a geração de classes, é comum algumas IDEs ainda não sincronizar
 as novas classes no projeto aberto, para tanto, lembre-se de sincronizar o  
 projeto para que as novas classes entrem no classpath do projeto, e com isso,  
 possam ser importadas por outras classes.
+
+### Erros ao rodar os testes
+
+Caso se deseje rodar os testes pelo terminal ou IDE lembre-se de possuir
+a JDK 8 instalada em uma das versões com suporte
+
+- Amazon Corretto
+- Oracle JDK
+- Red Hat’s OpenJDK
+- Zulu’s OpenJDK
+
+Em um cenário em que eu estava testando no IntelliJ ocorreu um erro referente
+a [java.lang.NoSuchFieldException: target](https://stackoverflow.com/questions/55655191/java-lang-nosuchfieldexception-target-exception-when-initiating-a-flow-from-t).
+
+No meu caso, a exemplo da pessoa que fez a pergunta, e estava usando uma 
+variação OpenJ9 do JDK
+
+![JDK 8 OpenJ9](/imgs/jdk8_j9.png)
+
+Alterando para uma versão como o Open JDK Zulu resolvi o problema
+
+![OpenJDK 8 Zulu](/imgs/openjdk_zulu.png)

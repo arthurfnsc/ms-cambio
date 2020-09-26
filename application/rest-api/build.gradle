@@ -27,6 +27,8 @@ dependencies {
     implementation "org.mapstruct:mapstruct:$mapstructVersion"
     implementation "org.apache.activemq:artemis-jms-server:$artemisJmsVersion"
     implementation "org.openapitools:jackson-databind-nullable:$jacksonDatabindNullableVersion"
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 task runBancoServer(type: JavaExec) {

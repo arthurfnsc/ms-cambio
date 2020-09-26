@@ -1,3 +1,4 @@
+*.hprof
 HELP.md
 .gradle
 .gradletasknamecache

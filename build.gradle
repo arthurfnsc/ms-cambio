@@ -2,6 +2,7 @@ plugins {
 
     id "com.appmattus.markdown" version "0.6.0" apply false
     id "com.github.ben-manes.versions" version "0.29.0" apply false
+    id 'info.solidsoft.pitest' version '1.5.1'
     id "io.gitlab.arturbosch.detekt" version "1.12.0" apply false
     id "net.corda.plugins.cordapp" version "5.0.11"
     id "net.corda.plugins.cordformation" version "5.0.11"
@@ -16,6 +17,7 @@ plugins {
 ext {
 
     aptVersion = "0.21"
+    archUnitVersion = '0.14.1'
     artemisJmsVersion = "2.6.2"
     assertJVersion = "3.17.1"
     cordaVersion = "4.5"
@@ -94,8 +96,8 @@ configure(allprojects - project(":application")) {
             "$kotlinGroup:kotlin-reflect",
             "$kotlinGroup:kotlin-stdlib-jdk8"
         ]
-
         libs.unitTest = [
+            "com.tngtech.archunit:archunit-junit5:$archUnitVersion",
             "org.assertj:assertj-core:$assertJVersion",
             "org.junit.jupiter:junit-jupiter-api:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion"
@@ -113,6 +115,25 @@ configure(allprojects - project(":application")) {
     test {
 
         useJUnitPlatform()
+    }
+}
+
+subprojects {
+
+    pitest {
+
+        avoidCallsTo = ["kotlin.jvm.internal", "org.slf4j"]
+        junit5PluginVersion = '0.12'
+        historyInputLocation = file("$buildDir/pitest")
+        historyOutputLocation = file("$buildDir/pitest")
+        jvmArgs = ['-Dspring.test.constructor.autowire.mode=all']
+        mutators = ["STRONGER"]
+        pitestVersion = '1.5.2'
+        targetClasses = ['br.com.fiap.mba.*']
+
+        if (project.name in ['application']) {
+            failWhenNoMutations = false
+        }
     }
 }
 
@@ -150,6 +171,18 @@ cordapp {
         vendor "Nameless"
         licence "A liberal, open source licence"
         versionId 1
+    }
+}
+
+pitest {
+    testPlugin = "junit5"
+    targetClasses = ['br.com.fiap.mba.*']  //by default "${project.group}.*"
+    threads = 4
+    outputFormats = ['XML', 'HTML']
+    timestampedReports = false
+
+    if (project.name in ['application', 'cordapp-contracts-states', 'cordapp-flows']) {
+        failWhenNoMutations = false
     }
 }
 
@@ -200,29 +233,14 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
 
 task jacocoRootReport(type: JacocoReport) {
 
-    def publishedProjects = subprojects.findAll{
-        it.name != "application" &&
-            it.name != "cordapp-contracts-states" &&
-            it.name != "cordapp-flows" &&
-            it.name != "rest-api"
-    }
+    def publishedProjects = project(":application").subprojects
 
-    dependsOn.publishedProjects.test
+    dependsOn = publishedProjects.test
 
-    sourceDirectories.from = publishedProjects.sourceSets.main.allSource.srcDirs
-    additionalSourceDirs.from = publishedProjects.sourceSets.main.allSource.srcDirs
-    classDirectories.from = publishedProjects.sourceSets.main.output
-    executionData.from = publishedProjects.jacocoTestReport.executionData
-
-    reports {
-        html.enabled = true
-        xml.enabled = true
-        csv.enabled = false
-    }
-
-    onlyIf = {
-        true
-    }
+    additionalSourceDirs.from = files(publishedProjects.sourceSets.main.allSource.srcDirs)
+    classDirectories.from =  files(publishedProjects.sourceSets.main.output)
+    executionData.from = files(publishedProjects.jacocoTestReport.executionData)
+    sourceDirectories.from = files(publishedProjects.sourceSets.main.allSource.srcDirs)
 
     doFirst {
         getExecutionData().setFrom(files(executionData.findAll {
@@ -230,10 +248,21 @@ task jacocoRootReport(type: JacocoReport) {
         }))
     }
 
+    onlyIf = {
+        true
+    }
+
+    reports {
+        html.enabled = true
+        xml.enabled = true
+        csv.enabled = false
+    }
+
     afterEvaluate {
         getClassDirectories().setFrom(files(classDirectories.files.collect {
             fileTree(dir: it,
                 exclude: [
+                    '**/openapi/cambio/**'
                 ]
             )
         }))

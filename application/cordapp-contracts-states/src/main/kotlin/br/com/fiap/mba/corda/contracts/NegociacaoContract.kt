@@ -1,6 +1,7 @@
 package br.com.fiap.mba.corda.contracts
 
 import br.com.fiap.mba.corda.states.PropostaState
+import net.corda.core.contracts.CommandWithParties
 import net.corda.core.contracts.Contract
 import net.corda.core.contracts.TypeOnlyCommandData
 import net.corda.core.contracts.requireSingleCommand
@@ -12,90 +13,143 @@ class NegociacaoContract : Contract {
     companion object {
 
         val ID = NegociacaoContract::class.qualifiedName
+
+        const val ASSINATURA_OBLITO_OBRIGATORIA = "A assinatura do oblito é obrigatória!"
+        const val ASSINATURA_PROPONENTE_OBRIGATORIA = "A assinatura do proponente é obrigatória!"
+
+        const val COMPRADOR_NAO_MODIFICADO = "O comprador não foi modificado no output!"
+        const val COMPRADOR_VENDEDOR = "O comprador e vendedor devem ser respectivamente o proponente e oblito!"
+        const val TAXA_NAO_MODIFICADA = "A taxa não deve ser modificada no output!"
+        const val VENDEDOR_NAO_MODIFICADO = "O vendedor não foi modificado no output!"
+
+        const val NENHUM_INPUT = "Não existe nenhum input!"
+        const val NENHUM_TIMESTAMP = "Não existe nenhum timestamp!"
+        const val UNICO_COMMAND = "Existe apenas 1 command!"
+        const val UNICO_INPUT = "Existe apenas 1 input!"
+        const val UNICO_INPUT_PROPOSTASTATE = "Existe apenas 1 input do tipo PropostaState!"
+        const val UNICO_OUTPUT = "Existe apenas 1 output!"
+        const val UNICO_OUTPUT_PROPOSTASTATE = "Existe apenas 1 output do tipo PropostaState!"
     }
 
-    @SuppressWarnings("LongMethod")
+    private fun validarAceite(
+        tx: LedgerTransaction,
+        cmd: CommandWithParties<Commands>
+    ) {
+
+        requireThat {
+
+            NENHUM_TIMESTAMP using (tx.timeWindow == null)
+            UNICO_COMMAND using (tx.commands.size == 1)
+            UNICO_INPUT using (tx.inputStates.size == 1)
+            UNICO_INPUT_PROPOSTASTATE using (tx.inputsOfType<PropostaState>().size == 1)
+            UNICO_OUTPUT using (tx.outputStates.size == 1)
+
+            val input = tx.inputsOfType<PropostaState>().single()
+            val output = tx.outputsOfType<PropostaState>().single()
+
+            COMPRADOR_NAO_MODIFICADO using (input.comprador == output.comprador)
+            TAXA_NAO_MODIFICADA using (output.taxa == input.taxa)
+            VENDEDOR_NAO_MODIFICADO using (input.vendedor == output.vendedor)
+
+            ASSINATURA_OBLITO_OBRIGATORIA using (cmd.signers.contains(input.oblato.owningKey))
+            ASSINATURA_PROPONENTE_OBRIGATORIA using (cmd.signers.contains(input.proponente.owningKey))
+        }
+    }
+
+    private fun validarContraProposta(
+        tx: LedgerTransaction,
+        cmd: CommandWithParties<Commands>
+    ) {
+
+        requireThat {
+
+            NENHUM_TIMESTAMP using (tx.timeWindow == null)
+            UNICO_COMMAND using (tx.commands.size == 1)
+            UNICO_INPUT using (tx.inputStates.size == 1)
+            UNICO_INPUT_PROPOSTASTATE using (tx.inputsOfType<PropostaState>().size == 1)
+            UNICO_OUTPUT using (tx.outputStates.size == 1)
+            UNICO_OUTPUT_PROPOSTASTATE using (tx.outputsOfType<PropostaState>().size == 1)
+
+            val output = tx.outputsOfType<PropostaState>().single()
+            val input = tx.inputsOfType<PropostaState>().single()
+
+            COMPRADOR_NAO_MODIFICADO using (input.comprador == output.comprador)
+            VENDEDOR_NAO_MODIFICADO using (input.vendedor == output.vendedor)
+
+            ASSINATURA_OBLITO_OBRIGATORIA using (cmd.signers.contains(output.oblato.owningKey))
+            ASSINATURA_PROPONENTE_OBRIGATORIA using (cmd.signers.contains(output.proponente.owningKey))
+        }
+    }
+
+    private fun validarProposta(
+        tx: LedgerTransaction,
+        cmd: CommandWithParties<Commands>
+    ) {
+
+        requireThat {
+
+            NENHUM_INPUT using (tx.inputStates.isEmpty())
+            NENHUM_TIMESTAMP using (tx.timeWindow == null)
+            UNICO_COMMAND using (tx.commands.size == 1)
+            UNICO_OUTPUT using (tx.outputStates.size == 1)
+            UNICO_OUTPUT_PROPOSTASTATE using (tx.outputsOfType<PropostaState>().size == 1)
+
+            val output = tx.outputsOfType<PropostaState>().single()
+
+            COMPRADOR_VENDEDOR using(
+                setOf(output.comprador, output.vendedor) == setOf(output.proponente, output.oblato)
+                )
+
+            ASSINATURA_OBLITO_OBRIGATORIA using (cmd.signers.contains(output.oblato.owningKey))
+            ASSINATURA_PROPONENTE_OBRIGATORIA using (cmd.signers.contains(output.proponente.owningKey))
+        }
+    }
+
+    private fun validarRecusa(
+        tx: LedgerTransaction,
+        cmd: CommandWithParties<Commands>
+    ) {
+
+        requireThat {
+
+            NENHUM_TIMESTAMP using (tx.timeWindow == null)
+            UNICO_COMMAND using (tx.commands.size == 1)
+            UNICO_INPUT using (tx.inputStates.size == 1)
+            UNICO_INPUT_PROPOSTASTATE using (tx.inputsOfType<PropostaState>().size == 1)
+            UNICO_OUTPUT using (tx.outputStates.size == 1)
+            UNICO_OUTPUT_PROPOSTASTATE using (tx.outputsOfType<PropostaState>().size == 1)
+
+            val input = tx.inputsOfType<PropostaState>().single()
+            val output = tx.outputsOfType<PropostaState>().single()
+
+            COMPRADOR_NAO_MODIFICADO using (input.comprador == output.comprador)
+            TAXA_NAO_MODIFICADA using (output.taxa == input.taxa)
+            VENDEDOR_NAO_MODIFICADO using (input.vendedor == output.vendedor)
+
+            ASSINATURA_OBLITO_OBRIGATORIA using (cmd.signers.contains(input.oblato.owningKey))
+            ASSINATURA_PROPONENTE_OBRIGATORIA using (cmd.signers.contains(input.proponente.owningKey))
+        }
+    }
+
     override fun verify(tx: LedgerTransaction) {
+
         val cmd = tx.commands.requireSingleCommand<Commands>()
 
         when (cmd.value) {
 
-            is Commands.Aceitar -> requireThat {
-                "There is exactly one input" using (tx.inputStates.size == 1)
-                "The single input is of type PropostaState" using (tx.inputsOfType<PropostaState>().size == 1)
-                "There is exactly one output" using (tx.outputStates.size == 1)
-                "There is exactly one command" using (tx.commands.size == 1)
-                "There is no timestamp" using (tx.timeWindow == null)
+            is Commands.Aceitar -> validarAceite(tx, cmd)
 
-                val input = tx.inputsOfType<PropostaState>().single()
-                val output = tx.outputsOfType<PropostaState>().single()
+            is Commands.ContraProposta -> validarContraProposta(tx, cmd)
 
-                "The taxa is unmodified in the output" using (output.taxa == input.taxa)
-                "The comprador is unmodified in the output" using (input.comprador == output.comprador)
-                "The vendedor is unmodified in the output" using (input.vendedor == output.vendedor)
+            is Commands.Proposta -> validarProposta(tx, cmd)
 
-                "The proponente is a required signer" using (cmd.signers.contains(input.proponente.owningKey))
-                "The oblito is a required signer" using (cmd.signers.contains(input.oblato.owningKey))
-            }
-
-            is Commands.ContraProposta -> requireThat {
-                "There is exactly one input" using (tx.inputStates.size == 1)
-                "The single input is of type PropostaState" using (tx.inputsOfType<PropostaState>().size == 1)
-                "There is exactly one output" using (tx.outputStates.size == 1)
-                "The single output is of type PropostaState" using (tx.outputsOfType<PropostaState>().size == 1)
-                "There is exactly one command" using (tx.commands.size == 1)
-                "There is no timestamp" using (tx.timeWindow == null)
-
-                val output = tx.outputsOfType<PropostaState>().single()
-                val input = tx.inputsOfType<PropostaState>().single()
-
-                "The taxa is modified in the output" using (output.taxa != input.taxa)
-                "The comprador is unmodified in the output" using (input.comprador == output.comprador)
-                "The vendedor is unmodified in the output" using (input.vendedor == output.vendedor)
-
-                "The proponente is a required signer" using (cmd.signers.contains(output.proponente.owningKey))
-                "The oblito is a required signer" using (cmd.signers.contains(output.oblato.owningKey))
-            }
-
-            is Commands.Proposta -> requireThat {
-                "There are no inputs" using (tx.inputStates.isEmpty())
-                "There is exactly one output" using (tx.outputStates.size == 1)
-                "The single output is of type PropostaState" using (tx.outputsOfType<PropostaState>().size == 1)
-                "There is exactly one command" using (tx.commands.size == 1)
-                "There is no timestamp" using (tx.timeWindow == null)
-
-                val output = tx.outputsOfType<PropostaState>().single()
-                "The comprador and vendedor are the proponente and the oblito" using(
-                    setOf(output.comprador, output.vendedor) == setOf(output.proponente, output.oblato)
-                )
-
-                "The proponente is a required signer" using (cmd.signers.contains(output.proponente.owningKey))
-                "The oblito is a required signer" using (cmd.signers.contains(output.oblato.owningKey))
-            }
-
-            is Commands.Recusar -> requireThat {
-                "There is exactly one input" using (tx.inputStates.size == 1)
-                "The single input is of type PropostaState" using (tx.inputsOfType<PropostaState>().size == 1)
-                "There is exactly one output" using (tx.outputStates.size == 1)
-                "The single output is of type NegociacaoState" using (tx.outputsOfType<PropostaState>().size == 1)
-                "There is exactly one command" using (tx.commands.size == 1)
-                "There is no timestamp" using (tx.timeWindow == null)
-
-                val input = tx.inputsOfType<PropostaState>().single()
-                val output = tx.outputsOfType<PropostaState>().single()
-
-                "The taxa is unmodified in the output" using (output.taxa == input.taxa)
-                "The comprador is unmodified in the output" using (input.comprador == output.comprador)
-                "The vendedor is unmodified in the output" using (input.vendedor == output.vendedor)
-
-                "The proponente is a required signer" using (cmd.signers.contains(input.proponente.owningKey))
-                "The oblito is a required signer" using (cmd.signers.contains(input.oblato.owningKey))
-            }
+            is Commands.Recusar -> validarRecusa(tx, cmd)
         }
     }
 
     // Used to indicate the transaction's intent.
     sealed class Commands : TypeOnlyCommandData() {
+
         class Aceitar : Commands()
         class ContraProposta : Commands()
         class Proposta : Commands()
